@@ -1,20 +1,24 @@
 {
-  "type": "minecraft:chest",
+  "type": "minecraft:generic",
   "pools": [
     {
       "rolls": 1,
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:coal"
+          "name": "minecraft:charcoal"
         },
         {
           "type": "minecraft:item",
-          "name": "tfc:powder/graphite"
+          "name": "tfc:ore/bituminous_coal"
         },
         {
           "type": "minecraft:item",
-          "name": "tfc:kaolin_clay"
+          "name": "tfc:ore/lignite"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "tfc:ore/graphite"
         }
       ]
     }
