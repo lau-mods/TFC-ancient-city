@@ -24,3 +24,6 @@ runs
 run-data
 
 repo
+
+# Local analysis and generation helpers
+.tmp/

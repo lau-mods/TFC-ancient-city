@@ -9,7 +9,7 @@ Vanilla Ancient CityをTerraFirmaCraft環境へ統合し、構造物内の一部
 - READMEは利用者向けの短い概要、配布先、build入口に絞り、詳細仕様を重複掲載しない。
 - 現在値は `gradle.properties`、Gradle設定、Mod metadata、実装コード、同梱dataを正本とし、別バージョンの記憶ではなく対象版の公式ソース、依存ソース、実JAR/dataで確認する。
 - 公開API、registry、tag、dataを優先し、Mixinは必要な対象へ限定する。client専用クラスをcommon/server側から参照せず、公開済みIDはworld/data pack互換性を優先する。
-- 依存JAR、展開物、一時解析物は `.tmp/`、再利用する処理は `tools/` に置く。生成物はscriptと二重管理せず、BOMなしUTF-8のJSONを使う。
+- 依存JAR、展開物、解析・生成scriptは `.tmp/` に置いてGit管理外にし、BOMなしUTF-8のJSONを使う。
 - `.gradle/`、`build/`、`runs/`、IDE metadata、依存JARを変更対象に含めず、無関係な既存差分を編集しない。
 - 変更前に既存の登録、命名、resource配置を確認し、依頼外のrename、format変更、依存・version更新を混ぜない。
 - 通常は `./gradlew compileJava`、完了時は `./gradlew build` を実行する。data変更時は全JSONをparseし、Mixin変更では対象構造物外への影響と専用サーバー安全性を確認する。
