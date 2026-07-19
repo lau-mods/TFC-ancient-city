@@ -7,6 +7,7 @@ Vanilla Ancient CityをTerraFirmaCraft環境へ統合し、構造物内の一部
 - 仕様ファイル名は大文字の `AGENTS.md` に統一する。
 - 本書は現在維持すべき仕様を記録し、挙動、対応バージョン、依存関係、ID、登録内容、有効化条件、生成規則、検証手順の変更と同時に更新する。
 - READMEは利用者向けの短い概要、配布先、build入口に絞り、詳細仕様を重複掲載しない。
+- ライセンスと第三者表示はrootの `LICENCE` 一つへ統合し、別のlicense/noticeファイルを作らない。
 - 現在値は `gradle.properties`、Gradle設定、Mod metadata、実装コード、同梱dataを正本とし、別バージョンの記憶ではなく対象版の公式ソース、依存ソース、実JAR/dataで確認する。
 - 公開API、registry、tag、dataを優先し、Mixinは必要な対象へ限定する。client専用クラスをcommon/server側から参照せず、公開済みIDはworld/data pack互換性を優先する。
 - 依存JAR、展開物、解析・生成scriptは `.tmp/` に置いてGit管理外にし、BOMなしUTF-8のJSONを使う。
