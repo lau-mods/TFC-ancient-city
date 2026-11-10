@@ -107,6 +107,42 @@
       "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
       "classname": "tfcancientcity:empty",
       "name": "deriveddeepslateandgeneralstoneremainunchanged"
+    },
+    {
+      "acId": "AC-F007-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "cobbleregistrationdropsandancientcityindependence"
+    },
+    {
+      "acId": "AC-F007-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "cobbleandlooserecipes"
+    },
+    {
+      "acId": "AC-F007-003",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "brickrecipesdamagetools"
+    },
+    {
+      "acId": "AC-F007-004",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "knappinganditemsizes"
+    },
+    {
+      "acId": "AC-F008-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "deepslatenevercollapsesorhardens"
+    },
+    {
+      "acId": "AC-F008-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "onlynewcobblelandslides"
     }
   ],
   "e2e": [
@@ -121,6 +157,14 @@
     {
       "acId": "AC-F004-003",
       "scenario": "tests/e2e/ancient-city-chest.mjs"
+    },
+    {
+      "acId": "AC-F007-001",
+      "scenario": "tests/e2e/cobble-deepslate.mjs"
+    },
+    {
+      "acId": "AC-F007-004",
+      "scenario": "tests/e2e/cobble-deepslate.mjs"
     }
   ]
 }

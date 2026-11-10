@@ -341,7 +341,10 @@ public final class AncientCityGameTests {
         Set<ResourceLocation> modBlocks = BuiltInRegistries.BLOCK.keySet().stream()
             .filter(id -> id.getNamespace().equals("tfcancientcity"))
             .collect(Collectors.toSet());
-        require(modBlocks.equals(Set.of(ResourceLocation.fromNamespaceAndPath("tfcancientcity", "rock/loose/deepslate"))),
+        require(modBlocks.equals(Set.of(
+            ResourceLocation.fromNamespaceAndPath("tfcancientcity", "rock/loose/deepslate"),
+            ResourceLocation.fromNamespaceAndPath("tfcancientcity", "rock/cobble/deepslate")
+        )),
             "Unexpected mod blocks: " + modBlocks);
         helper.succeed();
     }

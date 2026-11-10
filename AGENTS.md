@@ -10,6 +10,8 @@ M02 inherits the v0.1.1 Ancient City biome tag and all nine loot data files with
 
 M03 overrides only the Vanilla Deepslate and Cobbled Deepslate block loot tables. Connected mining drops Loose Deepslate uniformly from two through four, replacing v0.1.1's one-through-four range, while TFC isolated recovery returns one original block. Add only those two blocks to `tfc:breaks_when_isolated`; do not extend the behavior to ores, Reinforced Deepslate, derived building blocks, or general stone.
 
+M04 registers `tfcancientcity:rock/cobble/deepslate` as a separate TFC-style Cobble block and connects only that block to `tfc:can_landslide`. Keep Vanilla Cobbled Deepslate and all Ancient City Deepslate blocks unchanged. Do not add collapse tags or recipes, Hardened Deepslate, or a custom landslide recipe; TFC's tag-backed landslide fallback supplies the behavior. Preserve the six Deepslate processing recipes, metamorphic rock Knapping tags and GUI material, and the three explicit item size definitions.
+
 Use vanilla and NeoForge registries and data formats before custom mechanisms. Keep common code safe for dedicated servers. Add a GameTest for server-side behavior and an E2E screenshot scenario for client rendering changes. Run these commands from the repository root before handoff:
 
 ```text

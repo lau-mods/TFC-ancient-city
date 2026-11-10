@@ -3,6 +3,7 @@ package net.claustra01.tfcancientcity.registry;
 import net.claustra01.tfcancientcity.TfcAncientCity;
 import net.claustra01.tfcancientcity.block.LooseDeepslateBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
@@ -19,6 +20,10 @@ public final class ModBlocks {
             .strength(0.1F)
             .sound(SoundType.DEEPSLATE)
             .noCollission())
+    );
+    public static final DeferredBlock<Block> COBBLE_DEEPSLATE = BLOCKS.register(
+        "rock/cobble/deepslate",
+        () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.COBBLED_DEEPSLATE))
     );
 
     private ModBlocks() {

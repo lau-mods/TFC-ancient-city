@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "LL",
+    "LL"
+  ],
+  "key": {
+    "L": {
+      "item": "tfcancientcity:rock/loose/deepslate"
+    }
+  },
+  "result": {
+    "id": "tfcancientcity:rock/cobble/deepslate",
+    "count": 1
+  }
+}
