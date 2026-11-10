@@ -27,7 +27,18 @@ sourceSets.main.resources {
 }
 
 repositories {
-    // Add here additional repositories if required by some of the dependencies below.
+    maven {
+        url = "https://maven.blamejared.com"
+        content {
+            includeGroup "vazkii.patchouli"
+        }
+    }
+    maven {
+        url = "https://www.cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
 }
 
 base {
@@ -70,6 +81,7 @@ neoForge {
         gameTestServer {
             type = "gameTestServer"
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'tfcancientcity.gametestReport', file('build/test-results/gametest/TEST-tfcancientcity.GameTests.xml').absolutePath
         }
 
         data {
@@ -116,6 +128,10 @@ configurations {
 }
 
 dependencies {
+    implementation "curse.maven:terrafirmacraft-302973:9184471"
+    implementation "vazkii.patchouli:Patchouli:1.21.1-92-NEOFORGE"
+    jarJar "curse.maven:terrafirmacraft-302973:9184471"
+    jarJar "vazkii.patchouli:Patchouli:1.21.1-92-NEOFORGE"
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"

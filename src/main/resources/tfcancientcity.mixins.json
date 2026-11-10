@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.claustra01.tfcancientcity.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "StructureTemplateManagerMixin",
+    "StructureTemplateMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,4 +1,62 @@
 {
-  "gameTests": [],
-  "e2e": []
+  "gameTests": [
+    {
+      "acId": "AC-F001-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "serverloadswithoutoverdims"
+    },
+    {
+      "acId": "AC-F001-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "metadataandstableids"
+    },
+    {
+      "acId": "AC-F003-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "replacesalltwentyoneblocks"
+    },
+    {
+      "acId": "AC-F003-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "preservesunlistedancientcityblocks"
+    },
+    {
+      "acId": "AC-F003-003",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "preservespropertiesandcompatiblenbt"
+    },
+    {
+      "acId": "AC-F003-004",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "limitsscopeandwarnsonceformissingtargets"
+    },
+    {
+      "acId": "AC-F005-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "blockitemplacescountoneandconsumesone"
+    },
+    {
+      "acId": "AC-F005-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "stackstofourandpreserveseverycountonrecovery"
+    }
+  ],
+  "e2e": [
+    {
+      "acId": "AC-F001-001",
+      "scenario": "tests/e2e/loose-deepslate.mjs"
+    },
+    {
+      "acId": "AC-F005-003",
+      "scenario": "tests/e2e/loose-deepslate.mjs"
+    }
+  ]
 }
