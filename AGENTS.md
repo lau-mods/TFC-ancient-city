@@ -8,6 +8,8 @@ Loose Deepslate uses `GroundcoverBlock`, supports counts one through four, drops
 
 M02 inherits the v0.1.1 Ancient City biome tag and all nine loot data files without a semantic migration. Minecraft 1.21.1 already uses the singular `loot_table` directory, every referenced TFC 4.2.12 item and tag ID remains valid, and generated TFC food receives its normal food component and decay behavior without adding a recipe-only `tfc:copy_food` modifier. Do not add worldgen registries, override Vanilla Ancient City structure data, or alter Sculk and Warden behavior.
 
+M03 overrides only the Vanilla Deepslate and Cobbled Deepslate block loot tables. Connected mining drops Loose Deepslate uniformly from two through four, replacing v0.1.1's one-through-four range, while TFC isolated recovery returns one original block. Add only those two blocks to `tfc:breaks_when_isolated`; do not extend the behavior to ores, Reinforced Deepslate, derived building blocks, or general stone.
+
 Use vanilla and NeoForge registries and data formats before custom mechanisms. Keep common code safe for dedicated servers. Add a GameTest for server-side behavior and an E2E screenshot scenario for client rendering changes. Run these commands from the repository root before handoff:
 
 ```text

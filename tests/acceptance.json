@@ -89,6 +89,24 @@
       "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
       "classname": "tfcancientcity:empty",
       "name": "stackstofourandpreserveseverycountonrecovery"
+    },
+    {
+      "acId": "AC-F006-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "connecteddeepslatedropstwotofourlooserocks"
+    },
+    {
+      "acId": "AC-F006-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "isolateddeepslatereturnsoriginalblocks"
+    },
+    {
+      "acId": "AC-F006-003",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "deriveddeepslateandgeneralstoneremainunchanged"
     }
   ],
   "e2e": [
