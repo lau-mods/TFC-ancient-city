@@ -1,6 +1,5 @@
 package net.claustra01.tfcancientcity.gametest;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,28 +41,7 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 public final class BlockReplacementGameTests {
     @GameTest(template = "empty")
     public static void replacesAllTwentyOneBlocks(GameTestHelper helper) {
-        Map<Block, ResourceLocation> expected = new LinkedHashMap<>();
-        expected.put(Blocks.DARK_OAK_LOG, tfc("wood/log/blackwood"));
-        expected.put(Blocks.DARK_OAK_PLANKS, tfc("wood/planks/blackwood"));
-        expected.put(Blocks.DARK_OAK_SLAB, tfc("wood/planks/blackwood_slab"));
-        expected.put(Blocks.DARK_OAK_STAIRS, tfc("wood/planks/blackwood_stairs"));
-        expected.put(Blocks.DARK_OAK_FENCE, tfc("wood/fence/blackwood"));
-        expected.put(Blocks.DARK_OAK_FENCE_GATE, tfc("wood/fence_gate/blackwood"));
-        expected.put(Blocks.DARK_OAK_DOOR, tfc("wood/door/blackwood"));
-        expected.put(Blocks.DARK_OAK_TRAPDOOR, tfc("wood/trapdoor/blackwood"));
-        expected.put(Blocks.DARK_OAK_BUTTON, tfc("wood/button/blackwood"));
-        expected.put(Blocks.DARK_OAK_PRESSURE_PLATE, tfc("wood/pressure_plate/blackwood"));
-        expected.put(Blocks.CHEST, tfc("wood/chest/blackwood"));
-        expected.put(Blocks.TRAPPED_CHEST, tfc("wood/trapped_chest/blackwood"));
-        expected.put(Blocks.LECTERN, tfc("wood/lectern/blackwood"));
-        expected.put(Blocks.CANDLE, tfc("candle"));
-        expected.put(Blocks.WHITE_CANDLE, tfc("candle/white"));
-        expected.put(Blocks.TORCH, tfc("torch"));
-        expected.put(Blocks.WALL_TORCH, tfc("wall_torch"));
-        expected.put(Blocks.FURNACE, tfc("firepit"));
-        expected.put(Blocks.SMOKER, tfc("firepit"));
-        expected.put(Blocks.BLAST_FURNACE, tfc("firepit"));
-        expected.put(Blocks.IRON_TRAPDOOR, tfc("metal/trapdoor/wrought_iron"));
+        Map<Block, ResourceLocation> expected = ExpectedAncientCityReplacements.BLOCKS;
 
         int index = 0;
         for (Map.Entry<Block, ResourceLocation> entry : expected.entrySet()) {

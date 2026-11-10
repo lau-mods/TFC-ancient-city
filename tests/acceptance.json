@@ -13,6 +13,30 @@
       "name": "metadataandstableids"
     },
     {
+      "acId": "AC-F002-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "vanillaancientcitysettingsandthirtythreebiomes"
+    },
+    {
+      "acId": "AC-F002-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "representativetemplatekeepsvanillalayout"
+    },
+    {
+      "acId": "AC-F002-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "sculkandwardenremainvanilla"
+    },
+    {
+      "acId": "AC-F002-003",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "registersnoworldgenornaturalloosedeepslate"
+    },
+    {
       "acId": "AC-F003-001",
       "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
       "classname": "tfcancientcity:empty",
@@ -37,6 +61,24 @@
       "name": "limitsscopeandwarnsonceformissingtargets"
     },
     {
+      "acId": "AC-F004-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "lootdatamatchesfixedreferenceandresolves"
+    },
+    {
+      "acId": "AC-F004-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "fixedseedspreserveancientcityloot"
+    },
+    {
+      "acId": "AC-F004-003",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "replacedchestskeeplootacrossnbtroundtrip"
+    },
+    {
       "acId": "AC-F005-001",
       "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
       "classname": "tfcancientcity:empty",
@@ -57,6 +99,10 @@
     {
       "acId": "AC-F005-003",
       "scenario": "tests/e2e/loose-deepslate.mjs"
+    },
+    {
+      "acId": "AC-F004-003",
+      "scenario": "tests/e2e/ancient-city-chest.mjs"
     }
   ]
 }
