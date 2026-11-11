@@ -1,0 +1,184 @@
+{
+  "gameTests": [
+    {
+      "acId": "AC-F001-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "serverloadswithoutoverdims"
+    },
+    {
+      "acId": "AC-F001-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "metadataandstableids"
+    },
+    {
+      "acId": "AC-F001-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "itemsappearintfccreativetabs"
+    },
+    {
+      "acId": "AC-F002-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "vanillaancientcitysettingsandthirtythreebiomes"
+    },
+    {
+      "acId": "AC-F002-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "representativetemplatekeepsvanillalayout"
+    },
+    {
+      "acId": "AC-F002-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "sculkandwardenremainvanilla"
+    },
+    {
+      "acId": "AC-F002-003",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "registersnoworldgenornaturalloosedeepslate"
+    },
+    {
+      "acId": "AC-F003-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "replacesalltwentyoneblocks"
+    },
+    {
+      "acId": "AC-F003-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "preservesunlistedancientcityblocks"
+    },
+    {
+      "acId": "AC-F003-003",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "preservespropertiesandcompatiblenbt"
+    },
+    {
+      "acId": "AC-F003-004",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "limitsscopeandwarnsonceformissingtargets"
+    },
+    {
+      "acId": "AC-F004-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "vanillalootunchangedandmodifiersresolve"
+    },
+    {
+      "acId": "AC-F004-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "fixedseedsreplaceonlyrolledstacks"
+    },
+    {
+      "acId": "AC-F004-003",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "replacedchestskeeplootacrossnbtroundtrip"
+    },
+    {
+      "acId": "AC-F005-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "blockitemplacescountoneandconsumesone"
+    },
+    {
+      "acId": "AC-F005-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "stackstofourandpreserveseverycountonrecovery"
+    },
+    {
+      "acId": "AC-F006-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "connecteddeepslatedropstwotofourlooserocks"
+    },
+    {
+      "acId": "AC-F006-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "isolateddeepslatereturnsoriginalblocks"
+    },
+    {
+      "acId": "AC-F006-003",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "deriveddeepslateandgeneralstoneremainunchanged"
+    },
+    {
+      "acId": "AC-F007-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "vanillacobbleisthedeepslatecobble"
+    },
+    {
+      "acId": "AC-F007-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "cobbleandlooserecipes"
+    },
+    {
+      "acId": "AC-F007-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "vanillabypassrecipesdisabledandshapesfollowtfc"
+    },
+    {
+      "acId": "AC-F007-003",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "brickrecipesdamagetools"
+    },
+    {
+      "acId": "AC-F007-003",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "chiselshapesdeepslateinworld"
+    },
+    {
+      "acId": "AC-F007-004",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "knappinganditemsizes"
+    },
+    {
+      "acId": "AC-F008-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "deepslatenevercollapsesorhardens"
+    },
+    {
+      "acId": "AC-F008-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "nodeepslatelandslides"
+    }
+  ],
+  "e2e": [
+    {
+      "acId": "AC-F001-001",
+      "scenario": "tests/e2e/loose-deepslate.mjs"
+    },
+    {
+      "acId": "AC-F005-003",
+      "scenario": "tests/e2e/loose-deepslate.mjs"
+    },
+    {
+      "acId": "AC-F004-003",
+      "scenario": "tests/e2e/ancient-city-chest.mjs"
+    },
+    {
+      "acId": "AC-F007-004",
+      "scenario": "tests/e2e/deepslate-knapping.mjs"
+    }
+  ]
+}

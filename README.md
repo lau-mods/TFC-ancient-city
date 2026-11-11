@@ -1,13 +1,20 @@
 # TFC Ancient City
 
-Vanilla Ancient CityをTerraFirmaCraft環境へ統合するMinecraft 1.21.1 / NeoForge向けModです。
+TFC Ancient City integrates Minecraft's Ancient City structures with TerraFirmaCraft while preserving the Deep Dark, Sculk, Warden, deepslate construction, redstone, and campfire behavior.
 
-https://www.curseforge.com/minecraft/mc-mods/tfc-ancient-city
+Version 1.0.0 targets Minecraft 1.21.1 with Java 21 and NeoForge 21.1.264. TerraFirmaCraft 4.2.12 or a compatible newer 1.21.1 release is required; TFC Overdims is not required.
 
-## Build
+M01 provides:
 
-Requirement: JDK 21
+- a structure processor that replaces exactly 21 Ancient City blocks with fixed TFC Blackwood, candle, torch, Firepit, and wrought-iron equivalents;
+- scope protection so other structures and unlisted Ancient City blocks remain unchanged;
+- `tfcancientcity:rock/loose/deepslate` as a placeable, stackable Groundcover block and BlockItem with counts one through four;
+- `tfcancientcity:brick/deepslate` as the existing standalone material item.
 
-```sh
+Build and verify from the project root:
+
+```text
+./gradlew classes
 ./gradlew build
+./gradlew runGameTestServer
 ```

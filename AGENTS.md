@@ -1,39 +1,37 @@
-# TFC Ancient City 仕様
+# TFC Ancient City development guide
 
-Vanilla Ancient CityをTerraFirmaCraft環境へ統合し、構造物内の一部ブロックとlootをTFC相当に置き換えるMinecraft 1.21.1 / NeoForge向けModである。
+This repository targets Minecraft 1.21.1, Java 21, NeoForge 21.1.264, and TerraFirmaCraft 4.2.12 or newer for Minecraft 1.21.1. The mod ID is `tfcancientcity`, the release version is `1.0.0`, and Java code belongs under `net.claustra01.tfcancientcity`.
 
-## 共通開発ルール
+Keep Ancient City integration narrow. The structure processor changes exactly the 21 block IDs documented in `PROJECT.md`, always uses Blackwood, and runs only for `minecraft:ancient_city/*` templates. Campfires, deepslate and its variants, Sculk, redstone, wool, and soul lighting remain vanilla. Furnace-family NBT is discarded when creating a Firepit; compatible state and other NBT are retained.
 
-- 仕様ファイル名は大文字の `AGENTS.md` に統一する。
-- 本書は現在維持すべき仕様を記録し、挙動、対応バージョン、依存関係、ID、登録内容、有効化条件、生成規則、検証手順の変更と同時に更新する。
-- READMEは利用者向けの短い概要、配布先、build入口に絞り、詳細仕様を重複掲載しない。
-- ライセンスと第三者表示はrootの `LICENCE` 一つへ統合し、別のlicense/noticeファイルを作らない。
-- 現在値は `gradle.properties`、Gradle設定、Mod metadata、実装コード、同梱dataを正本とし、別バージョンの記憶ではなく対象版の公式ソース、依存ソース、実JAR/dataで確認する。
-- 公開API、registry、tag、dataを優先し、Mixinは必要な対象へ限定する。client専用クラスをcommon/server側から参照せず、公開済みIDはworld/data pack互換性を優先する。
-- 依存JAR、展開物、解析・生成scriptは `.tmp/` に置いてGit管理外にし、BOMなしUTF-8のJSONを使う。
-- `.gradle/`、`build/`、`runs/`、IDE metadata、依存JARを変更対象に含めず、無関係な既存差分を編集しない。
-- 変更前に既存の登録、命名、resource配置を確認し、依頼外のrename、format変更、依存・version更新を混ぜない。
-- 通常は `./gradlew compileJava`、完了時は `./gradlew build` を実行する。data変更時は全JSONをparseし、Mixin変更では対象構造物外への影響と専用サーバー安全性を確認する。
-- Minecraftクライアントはランタイム確認が必要な変更または明示依頼時だけ起動し、未実施の検証は理由と範囲を報告する。
+Loose Deepslate uses `GroundcoverBlock`, supports counts one through four, drops its represented count, and requires a sturdy support face. Do not add natural generation, Hardened Deepslate, collapse behavior, configuration files, or a dependency on TFC Overdims.
 
-## 基本情報
+M02 inherits the v0.1.1 Ancient City biome tag. Do not add worldgen registries, override Vanilla Ancient City structure data, or alter Sculk and Warden behavior.
 
-- Mod IDは `tfcancientcity`、Java packageは `net.claustra01.tfcancientcity`。
-- Minecraftは `1.21.1`、NeoForgeは `21.1.219`、Javaは `21`。
-- TFCを必須依存とし、versionの現在値は `gradle.properties` を正とする。
+Ancient City chest loot is converted after rolling, not by overriding loot JSON. Do not ship `data/minecraft/loot_table/chests/ancient_city*.json`, shared replacement tables, or extra pools; Vanilla (including experimental feature packs) keeps every pool, roll, weight, condition, empty entry, and count. The Global Loot Modifier `tfcancientcity:tfc_loot_replacement` (`net.claustra01.tfcancientcity.loot`) is listed in `neoforge:loot_modifiers/global_loot_modifiers.json` as `tfcancientcity:chests/ancient_city` and `tfcancientcity:chests/ancient_city_ice_box`, each gated by `neoforge:loot_table_id` and using the `lategame` profile. Paths that skip GLMs, such as `LootTable#getRandomItemsRaw`, stay unconverted. `TfcLootRules` is shared in content with TFC Overdims and applies, per rolled stack, one replacement choice for the whole count, splitting at the target's max stack size:
 
-## Ancient City置換
+| Source | Output (equal chance within each set) |
+| --- | --- |
+| diamond, emerald, lapis lazuli, amethyst shard | `tfc:gem/<amethyst, diamond, emerald, lapis_lazuli, opal, pyrite, ruby, sapphire, topaz>` |
+| iron, gold, copper ingot / block | `tfc:metal/ingot/<metal>` / `tfc:metal/double_ingot/<metal>`, lategame metals `steel`, `black_steel` |
+| iron nugget / gold nugget | `tfc:ore/small_<hematite, magnetite, limonite>` / `tfc:ore/small_native_gold` |
+| coal, charcoal | `minecraft:charcoal`, `tfc:ore/bituminous_coal`, `tfc:ore/lignite`, `tfc:ore/graphite` |
+| crying obsidian, quartz | `tfc:powder/flux`, glass, glass pane, `tfc:kaolin_clay`, `tfc:powder/wood_ash`, `tfc:powder/saltpeter`, `tfc:powder/sylvite` |
+| 22 Vanilla foods, 4 seeds, chain | fixed same-state TFC food, `tfc:seeds/*`, `tfc:metal/chain/wrought_iron` |
+| Vanilla tools, armor, shears, shield, horse armor | `tfc:metal/<shape>/steel`; families with parts give parts 2/3 and finished items 1/3 |
 
-- processor typeは `tfcancientcity:tfc_block_replacement`。
-- `StructureTemplateManager#getOrCreate` でtemplate IDを保持し、`StructureTemplate#placeInWorld` の先頭でprocessorを末尾へ追加する。
-- 対象は `minecraft:ancient_city/*` のtemplateだけとし、同じsettingsへ同一processorを重複追加しない。
-- 置換mapはAncient City内に実在し、明確なTFC対応先があるVanilla blockへ限定する。Dark Oak系はTFC Blackwood、chest・lecternもBlackwood、candle・torchはTFC同等品、iron trapdoorはWrought Ironへ置換する。
-- furnace、campfire、soul campfire、smoker、blast furnaceはTFC firepitへ置換し、互換性のないblock entity NBTを破棄する。
-- 置換元と先に同名・同値propertyがある場合はstateを引き継ぎ、firepitは元のhorizontal facingからaxisを設定する。
-- 置換先registry IDが存在しない場合は元blockを維持し、対象IDごとに一度だけwarningを出す。
+Equipment shapes are pickaxe: pickaxe_head, propick_head / pickaxe, propick; axe: axe_head, saw_blade / axe, saw; hoe: hoe_head, scythe_blade / hoe, scythe; sword: sword_blade, javelin_head, mace_head / sword, javelin, mace; shovel: shovel_head / shovel; helmet, chestplate, boots: unfinished_<part> / <part>; leggings: unfinished_greaves / greaves; shears, shield, horse_armor: finished only. Outputs are fresh stacks: source damage is not copied, parts are never enchanted, and TFC food gets its default creation and decay data. A stack keeps its original item when its target is missing, equals the source, or the stack carries components a fresh stack lacks, except damage and enchantments whose source function is declared. The `ancient_city` modifier declares `minecraft:enchant_with_levels` with `#minecraft:on_random_loot` for `diamond_hoe` and `diamond_leggings` (uniform 30–50) and `iron_leggings` (uniform 20–39); it re-runs only on finished replacements of enchanted sources. In Ancient City this converts amethyst shards, coal, the diamond hoe, both leggings, diamond horse armor, and the Ice Box baked potato; every other reward, including golden carrots, glow berries, enchanted books, and smithing templates, is unchanged.
 
-## 独自data
+M03 overrides only the Vanilla Deepslate and Cobbled Deepslate block loot tables. Connected mining drops Loose Deepslate uniformly from two through four, replacing v0.1.1's one-through-four range, while TFC isolated recovery returns one original block. Add only those two blocks to `tfc:breaks_when_isolated`; do not extend the behavior to ores, Reinforced Deepslate, derived building blocks, or general stone.
 
-- `tfcancientcity:rock/loose/deepslate` と `tfcancientcity:brick/deepslate` を登録し、TFC/Common tag、recipe、model、textureを維持する。
-- Ancient Cityのbiome tag、chest loot table、deepslate block loot overrideは同梱dataを正とし、Vanilla 1.21.1とTFC対象版の実dataを比較して変更する。
-- 他namespaceのresourceは、Vanilla/TFCへ意図して追加・上書きする互換dataだけに使う。
+M04 registers `tfcancientcity:rock/cobble/deepslate` as a separate TFC-style Cobble block and connects only that block to `tfc:can_landslide`. Keep Vanilla Cobbled Deepslate and all Ancient City Deepslate blocks unchanged. Do not add collapse tags or recipes, Hardened Deepslate, or a custom landslide recipe; TFC's tag-backed landslide fallback supplies the behavior. Preserve the six Deepslate processing recipes, metamorphic rock Knapping tags and GUI material, and the three explicit item size definitions.
+
+Use vanilla and NeoForge registries and data formats before custom mechanisms. Keep common code safe for dedicated servers. Add a GameTest for server-side behavior and an E2E screenshot scenario for client rendering changes. Run these commands from the repository root before handoff:
+
+```text
+./gradlew classes
+./gradlew build
+./gradlew runGameTestServer
+```
+
+Treat `PROJECT.md`, `.harness/`, and `.harness-state/` as read-only. Do not edit license files.

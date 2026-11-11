@@ -1,0 +1,12 @@
+{
+  "type": "tfc:chisel",
+  "ingredient": [
+    "minecraft:cobbled_deepslate"
+  ],
+  "item_output": {
+    "count": 1,
+    "id": "minecraft:cobbled_deepslate_slab"
+  },
+  "mode": "tfc:slab",
+  "result": "minecraft:cobbled_deepslate_slab"
+}

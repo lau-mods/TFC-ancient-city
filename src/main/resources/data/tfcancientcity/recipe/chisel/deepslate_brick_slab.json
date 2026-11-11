@@ -1,0 +1,12 @@
+{
+  "type": "tfc:chisel",
+  "ingredient": [
+    "minecraft:deepslate_bricks"
+  ],
+  "item_output": {
+    "count": 1,
+    "id": "minecraft:deepslate_brick_slab"
+  },
+  "mode": "tfc:slab",
+  "result": "minecraft:deepslate_brick_slab"
+}

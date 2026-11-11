@@ -1,0 +1,13 @@
+{
+  "status": "complete",
+  "phase": "complete",
+  "current": null,
+  "completed": [
+    "M01",
+    "M02",
+    "M03",
+    "M04"
+  ],
+  "lastCheckpoint": "21cd5882ae26c95b0337536edb6bd9e4fa67a36a",
+  "fatal": null
+}

@@ -11,12 +11,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(StructureTemplateManager.class)
 public abstract class StructureTemplateManagerMixin {
-    // NeoForge runtime uses official names; we don't generate a refmap, so disable remapping.
-    @Inject(method = "getOrCreate", at = @At("RETURN"), remap = false)
-    private void tfcancientcity$storeTemplateIdGetOrCreate(ResourceLocation id, CallbackInfoReturnable<StructureTemplate> cir) {
-        StructureTemplate template = cir.getReturnValue();
-        if (template instanceof StructureTemplateIdAccessor access) {
-            access.tfcancientcity$setTemplateId(id);
-        }
+    @Inject(method = "getOrCreate", at = @At("RETURN"))
+    private void tfcAncientCity$rememberTemplateId(
+        ResourceLocation templateId,
+        CallbackInfoReturnable<StructureTemplate> callback
+    ) {
+        ((StructureTemplateIdAccessor)(Object)callback.getReturnValue()).tfcAncientCity$setTemplateId(templateId);
     }
 }

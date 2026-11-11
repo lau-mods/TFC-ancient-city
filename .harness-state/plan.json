@@ -1,0 +1,111 @@
+{
+  "milestones": [
+    {
+      "id": "M01",
+      "features": [
+        "F-001",
+        "F-003",
+        "F-005"
+      ],
+      "dependsOn": [],
+      "approach": "MOD の基盤、全レジストリ、Ancient City 置換プロセッサ、Loose Deepslate ブロックを1つのマイルストーンでまとめて作る。F-001 の AC は既存3 ID（loose、brick、processor）の存在を求め、loose ID は F-005 で Block+BlockItem に変わるため、3 Feature の登録処理は共有になる。これで「先に Item として登録して後で作り直す」手戻りを避ける。\n\n1) 照合（Global Req.1）：最初に TFC Ancient City v0.1.1（7e0f43a）の Java・assets・data と、TFC Overdims v0.1.4（8c8aa4e）の build.gradle・LooseRockBlock・石材登録・GameTest 構成を `.tmp/` へ取得する。TFC 4.2.12 の JAR も取得し、GroundcoverBlock、COUNT プロパティ、FirepitBlock の AXIS、wood/metal の各 ID、candle/torch の ID を実物で確認する。\n\n2) Gradle と metadata：gradle.properties を `mod_version=1.0.0` にし、`minecraft_version_range=[1.21.1]` を維持する。Overdims に倣って TFC の maven リポジトリと依存（4.2.12 の 1.21.1 版）を build.gradle へ追加する。neoforge.mods.toml に TFC を `required`、`side=BOTH`、`ordering=AFTER` で宣言し、Overdims は宣言しない。mod_license は LICENCE の実際の表記と一致させる。説明文と作者も整える。\n\n3) パッケージ整理：`com.example.examplemod` と examplemod の assets を削除し、`net.claustra01.tfcancientcity` に TfcAncientCity（@Mod）、registry クラス（Blocks/Items/StructureProcessors）、必要な場合だけ client 専用クラスを置く。Config は「設定機能を作らない」制約に従って削除する。\n\n4) F-003：StructureProcessorType `tfcancientcity:tfc_block_replacement` を MapCodec.unit で登録し、TfcBlockReplacementProcessor を v0.1.1 基準で書く。\n- 置換表は不変 Map の 21 件。campfire と soul_campfire は含めない。\n- 置換先は BuiltInRegistries から解決する。見つからなければ元ブロックを保持し、変換先 ID ごとに1回だけ WARN を出す（ConcurrentHashMap の key set で管理）。\n- BlockState は同名・同値のプロパティを複製する。Firepit はかまど類の FACING から X/Z の AXIS を設定する。\n- furnace/smoker/blast_furnace の NBT は null にする。それ以外（Chest の LootTable/LootTableSeed など）は NBT を保持する。\n- 欠落時の処理を GameTest で検証できるよう、解決関数は置換先を注入できる形にする。\n- Mixin（`tfcancientcity.mixins.json` を mods.toml に宣言）：StructureTemplateManager#getOrCreate で、テンプレート ID を duck interface 経由で StructureTemplate に記録する。StructureTemplate#placeInWorld では ID の namespace が minecraft かつ path が `ancient_city/` で始まるときだけ、settings のプロセッサ末尾へ未追加の場合に限り1回追加する。Mixin は共通側だけに置き、client クラスを参照しない。\n\n5) F-005：Overdims の LooseRockBlock と同じく TFC GroundcoverBlock ベースで LooseDeepslateBlock を作り、`rock/loose/deepslate` に Block と BlockItem を登録する。実装する挙動は COUNT 1..4、同一アイテムの右クリックによる積み増し（4 個で止め、5 個目は消費しない）、素手回収で count 個を返すこと、支持面判定、支持面を失ったときに count 個をドロップすること。`brick/deepslate` は通常の Item のまま登録する。\n- assets：blockstate の count 1..4 variant、段階別モデル（TFC の loose rock モデルの構成に倣う）、item model を用意する。v0.1.1 の `textures/item/loose_rock/deepslate.png` と `textures/item/brick/deepslate.png` を再利用し、必要に応じて block 用テクスチャを置く。en_us の既存翻訳も継承する。\n- 破壊 loot table（`data/tfcancientcity/loot_table/blocks/rock/loose/deepslate.json`）は block_state_property で count を反映する。\n\n6) ハーネス：GameTest を `@GameTestHolder(tfcancientcity)` の形で作る。runGameTestServer の JUnit XML 出力先は、.harness の仕様と `neoforge.enabledGameTestNamespaces` に合わせる。tests/acceptance.json に testcase 名と AC の対応を登録する。\n- F-001：mods.toml を検査し、レジストリに3 ID が存在すること、Overdims が非ロードであることを確認する。専用サーバー起動の E2E も入れる。\n- F-003：21 入力すべてを試験片テンプレートで個別に配置して検証する（代表1件で済ませない）。あわせて焚き火2種・深層岩建材・Sculk・Redstone・羊毛・魂照明の保護、プロパティ・Firepit 軸・NBT、非 Ancient City テンプレートへの非適用、settings 再利用時の重複追加なし、欠落時の警告1回を確認する。\n- F-005：配置・積み増し・回収・破壊・支持面除去の個数保存を GameTest で、count 1..4 の表示とインベントリ表示を E2E 撮影で検証する。\n- AGENTS.md と README.md を v1.0 仕様に合わせて作成・更新する。完了条件は `./gradlew classes build runGameTestServer`。",
+      "scope": [
+        "gradle.properties",
+        "build.gradle",
+        "settings.gradle",
+        "src/main/templates/META-INF/neoforge.mods.toml",
+        "LICENCE（表記確認のみ）",
+        "src/main/java/com/example/examplemod/**（削除）",
+        "src/main/resources/assets/examplemod/**（削除）",
+        "src/main/java/net/claustra01/tfcancientcity/TfcAncientCity.java",
+        "src/main/java/net/claustra01/tfcancientcity/registry/**",
+        "src/main/java/net/claustra01/tfcancientcity/world/TfcBlockReplacementProcessor.java",
+        "src/main/java/net/claustra01/tfcancientcity/mixin/StructureTemplateManagerMixin.java, StructureTemplateMixin.java, duck interface",
+        "src/main/java/net/claustra01/tfcancientcity/block/LooseDeepslateBlock.java",
+        "src/main/resources/tfcancientcity.mixins.json",
+        "src/main/resources/assets/tfcancientcity/{blockstates,models/block,models/item,textures,lang/en_us.json}",
+        "src/main/resources/data/tfcancientcity/loot_table/blocks/rock/loose/deepslate.json",
+        "src/main/java/net/claustra01/tfcancientcity/gametest/**（F-001/F-003/F-005 の GameTest）",
+        "src/main/resources/data/tfcancientcity/structure/**（GameTest 用テンプレート）",
+        "tests/acceptance.json",
+        "E2E シナリオ（起動、Loose 表示）",
+        "AGENTS.md",
+        "README.md",
+        ".github/workflows/build.yml（必要な場合）"
+      ]
+    },
+    {
+      "id": "M02",
+      "features": [
+        "F-002",
+        "F-004"
+      ],
+      "dependsOn": [
+        "M01"
+      ],
+      "approach": "Vanilla Ancient City の生成と戦利品を v0.1.1 から継承し、検証する。どちらも minecraft 名前空間の上書きデータで、比較・回帰の対象も同じ Ancient City テンプレートとチェストなので、1つのマイルストーンにまとめる。M01 のプロセッサと Blackwood Chest 置換の上に成り立つ。\n\n1) F-002：`data/minecraft/tags/worldgen/biome/has_structure/ancient_city.json` を v0.1.1 から取得する。`replace: true` と 33 バイオームの完全一致を確認し、BOM なし UTF-8 で配置する。worldgen の structure、structure_set、template_pool、processor_list を一切同梱しないことと、tfcancientcity 名前空間に placed/configured feature や biome を登録しないことを確認する。\n\n2) GameTest（F-002）：\n- ロード後の biome タグが 33 種類と集合として一致し、各 ID が TFC の biome registry で解決されること。\n- `minecraft:ancient_city` の Structure と StructureSet の設定（間隔・分離・高度・start pool）が Vanilla 1.21.1 の値と一致すること。\n- 本 MOD の worldgen registry エントリが 0 件であること。\n- 代表的な Ancient City テンプレートを配置し、Vanilla テンプレートのブロック列に 21 件の置換写像を適用したものと、位置・寸法・ID が一致すること。\n- Sculk Sensor の振動感知、Shrieker の発動、Warden の召喚と AI・属性値（体力・攻撃力など）が Vanilla 既定値と同じであること。\n\n3) F-004：v0.1.1 の9ファイルを同名パスへ継承する（`loot_table` は 1.21.1 の単数形ディレクトリ）。TFC 4.2.12 で item ID、タグ、関数（腐敗処理の `tfc:copy_food` など）の形式が変わっていないか JAR と照合し、移行が必要なら等価に変換して差分を AGENTS.md に記録する。\n\n4) GameTest（F-004）：\n- 9 ファイルを固定参照の JSON と再帰比較し、主要定数を検査する。第一プールは 5～10 回・28 エントリ、第二プールは empty:75 / ward:4 / silence:1、氷室は 4～10 回・5 エントリ、gems は 9、produce タグは 39、coal_like は 4。\n- LootDataManager でロードエラーがなく、参照先テーブル・アイテム・タグがすべて解決されること。\n- 複数の固定シードで生成し、プール構成と固有報酬（残響の欠片、レコード、鍛冶型、エンチャント本）、TFC の鋼装備・食料・宝石・石炭類を確認する。\n- Blackwood Chest / Trapped Chest に置換されたブロックエンティティが LootTable 参照を保持し、保存・再読込（NBT の round-trip）後も開封時に抽選されること。\n\n5) E2E：Ancient City のチェストを開いたときにクライアントとサーバーの内容が一致し、空箱にならないことを確認する。tests/acceptance.json と AGENTS.md を更新する。",
+      "scope": [
+        "src/main/resources/data/minecraft/tags/worldgen/biome/has_structure/ancient_city.json",
+        "src/main/resources/data/minecraft/loot_table/chests/ancient_city.json",
+        "src/main/resources/data/minecraft/loot_table/chests/ancient_city_ice_box.json",
+        "src/main/resources/data/tfcancientcity/loot_table/shared/{coal_like,gems,produce}.json",
+        "src/main/resources/data/tfcancientcity/loot_table/shared/equipment/lategame/{greaves,hoe,horse_armor}.json",
+        "src/main/resources/data/tfcancientcity/tags/item/loot/produce.json",
+        "src/main/java/net/claustra01/tfcancientcity/gametest/**（F-002/F-004 の GameTest）",
+        "GameTest 用の参照データ（固定参照 JSON の比較用コピー、必要な場合）",
+        "tests/acceptance.json",
+        "E2E シナリオ（チェスト開封）",
+        "AGENTS.md"
+      ]
+    },
+    {
+      "id": "M03",
+      "features": [
+        "F-006"
+      ],
+      "dependsOn": [
+        "M01"
+      ],
+      "approach": "Vanilla の deepslate と cobbled_deepslate の採掘を、TFC Overdims の非孤立採掘方式に揃える。M01 で登録した Loose Deepslate をドロップ先として使う。\n\n1) Overdims v0.1.4 の石材ブロック loot table（alternatives の順序、`tfc:is_isolated` 条件の位置、explosion_decay の有無、シルクタッチの扱い）と、TFC 4.2.12 の `tfc:is_isolated` 条件および WorldTracker の孤立回収の実装を確認する。\n\n2) `data/minecraft/loot_table/blocks/deepslate.json` と `cobbled_deepslate.json` を上書きする。`tfc:is_isolated` を満たすときは元ブロックを1個、それ以外は `tfcancientcity:rock/loose/deepslate` を uniform 2～4 個とし、独自のシルクタッチ特例は加えない。\n\n3) `data/tfc/tags/block/breaks_when_isolated.json` を `replace: false` で作り、上記2ブロックだけを入れる。深層岩鉱石、reinforced_deepslate、階段・レンガ・タイルなどの loot table は同梱しない。\n\n4) GameTest：\n- 両ブロックについて、複数の固定シードで LootParams（tool、origin、block_state）から生成し、Loose が 2～4 個（1 個と 5 個以上は出ない）であること。\n- `tfc:is_isolated` を満たす context で元ブロックが1個返ること。\n- 周囲を空気にしたブロックを TFC の孤立回収経路で処理し、元ブロックがドロップすること。\n- 接続状態でモックプレイヤーが実際に採掘し、ドロップの種類と個数を確認すること。\n- 派生ブロックと一般石材について、tfcancientcity 由来の loot 上書きがなく、タグにも含まれず、採掘結果が Vanilla/TFC 既定と一致すること。\n\n5) tests/acceptance.json と AGENTS.md（v0.1.1 の 1～4 個から 2～4 個への変更を明記）を更新する。",
+      "scope": [
+        "src/main/resources/data/minecraft/loot_table/blocks/deepslate.json",
+        "src/main/resources/data/minecraft/loot_table/blocks/cobbled_deepslate.json",
+        "src/main/resources/data/tfc/tags/block/breaks_when_isolated.json",
+        "src/main/java/net/claustra01/tfcancientcity/gametest/**（F-006 の GameTest）",
+        "tests/acceptance.json",
+        "AGENTS.md"
+      ]
+    },
+    {
+      "id": "M04",
+      "features": [
+        "F-007",
+        "F-008"
+      ],
+      "dependsOn": [
+        "M01",
+        "M03"
+      ],
+      "approach": "新規ブロック `tfcancientcity:rock/cobble/deepslate` を作り、石材加工と地滑りを接続する。F-008 の地滑り対象はこの新 Cobble だけで、ブロック登録とタグデータを F-007 と共有するため同じマイルストーンにする。F-008 の孤立回収との区別は M03 の結果を前提にする。\n\n1) Overdims v0.1.4 の `cobble_end_stone` / `cobble_netherrack` を参照し、TFC 4.2.12 の Rock.BlockType.COBBLE の Block クラス・プロパティ・タグ・地滑りの扱いを確認する。地滑りが `tfc:can_landslide` タグだけで動くのか、`tfc:landslide` 系のデータも必要なのかを実物で確かめ、必要な最小データだけを追加する。\n\n2) 登録：Cobble Deepslate の Block と BlockItem を登録する。blockstate、block/item model、テクスチャ（深層岩の cobble 外観）、en_us 名、自身を1個返す loot table を用意し、mineable/pickaxe など TFC の COBBLE 相当のブロックタグを付ける。\n\n3) レシピ（`data/tfcancientcity/recipe/`）：\n- Loose ×4 の 2×2 から新 Cobble ×1。旧 Vanilla Cobbled 出力は置き換える。\n- 新 Cobble から Loose ×4（shapeless）。\n- `minecraft:cobbled_deepslate` から Loose ×4（v0.1.1 の既存レシピを維持）。\n- Loose ＋ `#c:tools/chisel` から brick/deepslate。\n- brick ×5 と `tfc:mortar` ×4 を BMB/MBM/BMB に並べて `minecraft:deepslate_bricks` ×4。\n- `minecraft:deepslate_bricks` ＋ `#c:tools/hammer` から cracked_deepslate_bricks。\n- 工具を使う2件は、TFC の `tfc:advanced_shapeless_crafting` と `tfc:damage_crafting_remainder` を TFC 4.2.12 の実 JSON 形式に合わせて書く。\n- Vanilla 深層岩レシピの削除や、Overdims のレシピ無効化処理は移植しない。\n\n4) タグとデータ：item タグ `tfc:rock_knapping` と `tfc:stones/loose/metamorphic` に Loose を `replace: false` で追加し、Overdims と同じパスに Knapping GUI 用テクスチャを置く。`tfc:item_size` は TFC 4.2.12 のデータパス・形式で書き、Loose と Cobble は small/light、brick は very_small/very_light とし、各対象の定義を1件にする。block タグ `tfc:can_landslide` に新 Cobble だけを `replace: false` で追加する。can_start_collapse、can_collapse、can_trigger_collapse、collapse recipe、hardened ブロックは作らない。\n\n5) GameTest：\n- 新 Cobble が Block/BlockItem として存在し、自身を1個ドロップし、Vanilla cobbled_deepslate と別物であること。Ancient City テンプレートに新 Cobble が現れないこと。\n- 各レシピを RecipeManager と CraftingInput で個別に照合し、出力・残留物・工具の耐久が1減ること、Mortar と素材の消費数を確認する。Loose ×4 が Vanilla Cobbled を出力しないことも確認する。\n- Knapping：TFC の変成岩石器レシピが Loose で成立すること。\n- ItemSizeManager による3品の size/weight と、定義が1件であること。\n- 崩落：本 MOD 由来の collapse 系タグ・recipe がなく、`rock/hardened/deepslate` が未登録であること。支持のない Vanilla 深層岩構造と下面が空気のテンプレートで崩落も硬化置換も起きないこと。\n- 地滑り：新 Cobble だけが can_landslide に入って実際に滑り、Vanilla Cobbled、Bricks、Tiles、鉱石は対象外であること。\n\n6) E2E：Knapping GUI に深層岩素材が表示されることと、Cobble のモデル表示を撮影する。tests/acceptance.json と AGENTS.md を更新し、最後に全 AC の対応と `./gradlew classes build runGameTestServer` の成功を確認する。",
+      "scope": [
+        "src/main/java/net/claustra01/tfcancientcity/registry/**（Cobble Deepslate 登録）",
+        "src/main/resources/assets/tfcancientcity/{blockstates,models/block,models/item}/rock/cobble/deepslate.json",
+        "src/main/resources/assets/tfcancientcity/textures/block/rock/cobble/deepslate.png",
+        "src/main/resources/assets/tfcancientcity/textures/gui/knapping/**（Knapping 素材画像）",
+        "src/main/resources/assets/tfcancientcity/lang/en_us.json",
+        "src/main/resources/data/tfcancientcity/loot_table/blocks/rock/cobble/deepslate.json",
+        "src/main/resources/data/tfcancientcity/recipe/**（6 レシピ）",
+        "src/main/resources/data/tfcancientcity/tfc/item_size/**（TFC の実パスに合わせる）",
+        "src/main/resources/data/tfc/tags/item/rock_knapping.json",
+        "src/main/resources/data/tfc/tags/item/stones/loose/metamorphic.json",
+        "src/main/resources/data/tfc/tags/block/can_landslide.json",
+        "src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json（必要な場合）",
+        "src/main/java/net/claustra01/tfcancientcity/gametest/**（F-007/F-008 の GameTest）",
+        "tests/acceptance.json",
+        "E2E シナリオ（Knapping GUI、Cobble 表示）",
+        "AGENTS.md",
+        "README.md"
+      ]
+    }
+  ]
+}

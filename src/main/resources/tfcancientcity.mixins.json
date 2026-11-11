@@ -2,10 +2,12 @@
   "required": true,
   "minVersion": "0.8",
   "package": "net.claustra01.tfcancientcity.mixin",
+  "compatibilityLevel": "JAVA_21",
   "mixins": [
     "StructureTemplateManagerMixin",
     "StructureTemplateMixin"
   ],
-  "client": [],
-  "server": []
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

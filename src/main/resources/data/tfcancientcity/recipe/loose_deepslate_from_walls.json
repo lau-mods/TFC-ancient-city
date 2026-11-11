@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "minecraft:cobbled_deepslate_wall"
+    }
+  ],
+  "result": {
+    "count": 4,
+    "id": "tfcancientcity:rock/loose/deepslate"
+  }
+}
