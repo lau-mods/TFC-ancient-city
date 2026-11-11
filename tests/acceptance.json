@@ -13,6 +13,12 @@
       "name": "metadataandstableids"
     },
     {
+      "acId": "AC-F001-001",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "itemsappearintfccreativetabs"
+    },
+    {
       "acId": "AC-F002-001",
       "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
       "classname": "tfcancientcity:empty",

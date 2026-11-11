@@ -4,11 +4,15 @@ import net.claustra01.tfcancientcity.TfcAncientCity;
 import net.claustra01.tfcancientcity.registry.ModBlocks;
 import net.claustra01.tfcancientcity.registry.ModItems;
 import net.claustra01.tfcancientcity.registry.ModStructureProcessors;
+import java.util.List;
+import net.dries007.tfc.common.TFCCreativeTabs;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforgespi.language.IModInfo;
 import net.neoforged.neoforge.gametest.GameTestHolder;
@@ -61,6 +65,31 @@ public final class ModRegistrationGameTests {
         require(BuiltInRegistries.ITEM.containsKey(id("brick/deepslate")), "Deepslate Brick ID is missing");
         require(BuiltInRegistries.STRUCTURE_PROCESSOR.containsKey(id("tfc_block_replacement")), "processor ID is missing");
         helper.succeed();
+    }
+
+    @GameTest(template = "empty")
+    public static void itemsAppearInTfcCreativeTabs(GameTestHelper helper) {
+        CreativeModeTab.ItemDisplayParameters parameters = new CreativeModeTab.ItemDisplayParameters(
+            helper.getLevel().enabledFeatures(), true, helper.getLevel().registryAccess()
+        );
+        CreativeModeTab natural = TFCCreativeTabs.TFC_NATURAL_BLOCKS.tab().get();
+        CreativeModeTab ingredients = TFCCreativeTabs.TFC_METALS_INGREDIENTS.tab().get();
+        natural.buildContents(parameters);
+        ingredients.buildContents(parameters);
+        require(contains(natural, ModItems.LOOSE_DEEPSLATE.get()), "Loose Deepslate is missing from the TFC natural blocks tab");
+        require(contains(natural, ModItems.COBBLE_DEEPSLATE.get()), "Cobble Deepslate is missing from the TFC natural blocks tab");
+        require(contains(ingredients, ModItems.DEEPSLATE_BRICK.get()), "Deepslate Brick is missing from the TFC metals and ingredients tab");
+        require(!contains(natural, ModItems.DEEPSLATE_BRICK.get()) && !contains(ingredients, ModItems.LOOSE_DEEPSLATE.get())
+            && !contains(ingredients, ModItems.COBBLE_DEEPSLATE.get()), "Items were added to an unexpected TFC tab");
+        for (Item item : List.of(ModItems.LOOSE_DEEPSLATE.get(), ModItems.COBBLE_DEEPSLATE.get(), ModItems.DEEPSLATE_BRICK.get())) {
+            require(natural.getSearchTabDisplayItems().stream().anyMatch(stack -> stack.is(item))
+                || ingredients.getSearchTabDisplayItems().stream().anyMatch(stack -> stack.is(item)), "Item is not searchable: " + item);
+        }
+        helper.succeed();
+    }
+
+    private static boolean contains(CreativeModeTab tab, Item item) {
+        return tab.getDisplayItems().stream().anyMatch(stack -> stack.is(item));
     }
 
     private static ResourceLocation id(String path) {
