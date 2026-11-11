@@ -207,6 +207,7 @@ public final class AncientCityLootGameTests {
             case "minecraft:diamond_leggings", "minecraft:iron_leggings" -> List.of("unfinished_greaves", "greaves").forEach(shape -> values.add(steel(shape)));
             case "minecraft:diamond_horse_armor" -> values.add(steel("horse_armor"));
             case "minecraft:baked_potato" -> values.add("tfc:food/baked_potato");
+            case "minecraft:candle" -> values.add("tfc:candle");
             default -> {
             }
         }
@@ -217,7 +218,7 @@ public final class AncientCityLootGameTests {
         Set<String> targets = new HashSet<>();
         for (String source : List.of(
             "minecraft:amethyst_shard", "minecraft:coal", "minecraft:diamond_hoe", "minecraft:diamond_leggings",
-            "minecraft:diamond_horse_armor", "minecraft:baked_potato"
+            "minecraft:diamond_horse_armor", "minecraft:baked_potato", "minecraft:candle"
         )) {
             targets.addAll(allowedOutputs(source));
         }

@@ -45,7 +45,9 @@ public final class TfcLootRules {
         Map.entry("minecraft:bread", "tfc:food/wheat_bread"), Map.entry("minecraft:dried_kelp", "tfc:food/dried_kelp"),
         Map.entry("minecraft:wheat_seeds", "tfc:seeds/wheat"), Map.entry("minecraft:beetroot_seeds", "tfc:seeds/beet"),
         Map.entry("minecraft:pumpkin_seeds", "tfc:seeds/pumpkin"), Map.entry("minecraft:melon_seeds", "tfc:seeds/melon"),
-        Map.entry("minecraft:chain", "tfc:metal/chain/wrought_iron"));
+        Map.entry("minecraft:chain", "tfc:metal/chain/wrought_iron"),
+        // Ancient City only: matches the structure processor's candle replacement.
+        Map.entry("minecraft:candle", "tfc:candle"));
     private static final Map<String, Group> GROUPS = new HashMap<>();
     private static final Map<String, Family> FAMILIES = new HashMap<>();
 
