@@ -1,5 +1,6 @@
 package net.claustra01.tfcancientcity;
 
+import net.claustra01.tfcancientcity.loot.TfcLootReplacementModifier;
 import net.claustra01.tfcancientcity.registry.ModBlocks;
 import net.claustra01.tfcancientcity.registry.ModItems;
 import net.claustra01.tfcancientcity.registry.ModStructureProcessors;
@@ -17,5 +18,6 @@ public final class TfcAncientCity {
         ModBlocks.BLOCKS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ModStructureProcessors.STRUCTURE_PROCESSORS.register(modEventBus);
+        TfcLootReplacementModifier.SERIALIZERS.register(modEventBus);
     }
 }

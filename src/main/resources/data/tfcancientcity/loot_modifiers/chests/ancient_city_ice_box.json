@@ -1,0 +1,10 @@
+{
+  "type": "tfcancientcity:tfc_loot_replacement",
+  "conditions": [
+    {
+      "condition": "neoforge:loot_table_id",
+      "loot_table_id": "minecraft:chests/ancient_city_ice_box"
+    }
+  ],
+  "profile": "lategame"
+}

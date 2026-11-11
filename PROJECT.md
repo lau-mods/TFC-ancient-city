@@ -13,7 +13,7 @@ Java: 21
 
 ## Purpose
 
-TFC Ancient City v1.0 は、Minecraft 1.21.1 の Vanilla Ancient City を TerraFirmaCraft（以下 TFC）の地形・資源・加工体系へ統合する NeoForge アドオンである。古代都市の構造、Deep Dark の機能、Warden と Sculk の挙動、生成条件、既存の探索報酬を維持し、構造物内の限定的なブロック置換と深層岩の TFC 式採掘・加工機能を実装する。
+TFC Ancient City v1.0 は、Minecraft 1.21.1 の Vanilla Ancient City を TerraFirmaCraft（以下 TFC）の地形・資源・加工体系へ統合する NeoForge アドオンである。古代都市の構造、Deep Dark の機能、Warden と Sculk の挙動、生成条件、Vanilla の探索報酬の抽選を維持し、構造物内の限定的なブロック置換、抽選済み報酬の TFC 化と深層岩の TFC 式採掘・加工機能を実装する。
 
 登録名前空間は `tfcancientcity`、Java の基本パッケージは `net.claustra01.tfcancientcity`、製品バージョンは `1.0.0` とする。Minecraft の対応バージョンは 1.21.1 のみとする。NeoForge 21.1.264 は再設計の検証基準であり、Minecraft 1.21.1 に対応する NeoForge・TFC の更新には継続対応する。他の Minecraft バージョンへの移植は本プロジェクトの対象外とする。TFC は必須依存とし、TFC Overdims は参照実装であって必須依存にはしない。
 
@@ -21,9 +21,9 @@ TFC Ancient City v1.0 は、Minecraft 1.21.1 の Vanilla Ancient City を TerraF
 
 | 用途 | 固定参照 | 参照対象 |
 | --- | --- | --- |
-| 既存機能・戦利品・バイオーム・ブロック置換 | [TFC Ancient City `v0.1.1`](https://github.com/lau-mods/TFC-ancient-city/tree/7e0f43a9510a844607e480c023aec15ff7d8062d) | Java、JSON、登録 ID、資産 |
+| 既存機能・バイオーム・ブロック置換 | [TFC Ancient City `v0.1.1`](https://github.com/lau-mods/TFC-ancient-city/tree/7e0f43a9510a844607e480c023aec15ff7d8062d) | Java、JSON、登録 ID、資産 |
 | 同リポジトリの新しい開発規約 | [TFC Ancient City `main` の `AGENTS.md`](https://github.com/lau-mods/TFC-ancient-city/blob/28191e4009228966170b4d2529be238fcac50543/AGENTS.md) | コード・データと矛盾しない運用規則 |
-| TFC 式石材処理 | [TFC Overdims `v0.1.4`](https://github.com/lau-mods/TFC-Overdims/tree/8c8aa4e7594cbb692dace707c870299fa6aa7d44) | `LooseRockBlock`、石材登録、採掘 loot、レシピ、タグ、GameTest |
+| TFC 式石材処理 | [TFC Overdims `v0.1.4`](https://github.com/lau-mods/TFC-Overdims/tree/8c8aa4e7594cbb692dace707c870299fa6aa7d44) | `LooseRockBlock`、石材登録、採掘 loot、レシピ、タグ、戦利品置換 GLM、GameTest |
 | 開発ハーネスの形式 | [modding-harness `PROJECT.md` テンプレート](https://github.com/lau-mods/modding-harness/blob/d1e3524b9574966ca84a38fab7af0fb8bc0520e3/templates/PROJECT.md) | Feature、Acceptance Criteria、検証形式 |
 
 **仕様の優先順位**は、本書の v1.0 固有規則、TFC Ancient City v0.1.1 の実コード・同梱データ、TFC Overdims v0.1.4 の該当機能の実コード・同梱データ、各リポジトリの `AGENTS.md`・`PROJECT.md`・README の順とする。ただし、依存先の公開 API・実際のレジストリ・ロード結果が異なる場合はその差異を検証して解消する。開発文書の記述だけでコードの挙動を推定しない。例えば旧 `AGENTS.md` にある焚き火から Firepit への置換は、v1.0 では明示的に廃止する。
@@ -225,36 +225,40 @@ Action:
 Expected Result:
 対象外構造物は変更されず、プロセッサの重複追加は起きない。変換先が存在しない場合は元ブロックを保持し、同じ変換先 ID への警告を重複出力しない。
 
-### F-004: 古代都市の戦利品維持
+### F-004: 古代都市の戦利品置換
 
 #### Description
 
-v0.1.1 の Ancient City チェストと Ice Box の戦利品、抽選回数、重み、数量、エンチャント処理、食料・鉱石・装備・バニラ固有報酬を **変更しない**。新規報酬を追加せず、鋼製の装備報酬を弱体化しない。以下の同梱データを固定参照の同名ファイルから継承し、JSON として有効な状態でロードする。
+`minecraft:chests/ancient_city` と `minecraft:chests/ancient_city_ice_box` の Vanilla loot table JSON を上書きせず、`pool`、`rolls`、`bonus_rolls`、`weight`、`quality`、`conditions`、`functions`、空エントリによる抽選結果を変更しない。v0.1.1 の上書きテーブル、`tfcancientcity:shared/*` の共有抽選、`tfcancientcity:loot/produce` タグは同梱しない。追加 pool や追加抽選で報酬の出現頻度を変えない。
 
-| 種別 | 継承する `src/main/resources/data/` 以下のファイル |
+抽選後の `ItemStack` だけを Global Loot Modifier `tfcancientcity:tfc_loot_replacement` で置換する。`neoforge:loot_modifiers/global_loot_modifiers.json` に `tfcancientcity:chests/ancient_city` と `tfcancientcity:chests/ancient_city_ice_box` を登録し、各 modifier は `neoforge:loot_table_id` で対象テーブルを限定して `lategame` profile を使う。置換規則は TFC Overdims の `TfcLootRules` と同一内容とし、元スタック 1 個につき置換先を 1 回選び、個数を維持して最大スタック数で分割する。`LootTable#getRandomItemsRaw` など GLM を経由しない経路は対象外とする。
+
+| 元アイテム | 置換先（各集合内で等確率） |
 | --- | --- |
-| チェスト | `minecraft/loot_table/chests/ancient_city.json` |
-| 氷室 | `minecraft/loot_table/chests/ancient_city_ice_box.json` |
-| 共有抽選 | `tfcancientcity/loot_table/shared/coal_like.json`、`gems.json`、`produce.json` |
-| 鋼装備 | `tfcancientcity/loot_table/shared/equipment/lategame/greaves.json`、`hoe.json`、`horse_armor.json` |
-| 食料の集合 | `tfcancientcity/tags/item/loot/produce.json` |
+| diamond、emerald、lapis lazuli、amethyst shard | `tfc:gem/` の amethyst、diamond、emerald、lapis_lazuli、opal、pyrite、ruby、sapphire、topaz |
+| iron・gold・copper の ingot / block | `tfc:metal/ingot/<metal>` / `tfc:metal/double_ingot/<metal>`（metal は steel、black_steel） |
+| iron nugget / gold nugget | `tfc:ore/small_hematite`、`small_magnetite`、`small_limonite` / `tfc:ore/small_native_gold` |
+| coal、charcoal | `minecraft:charcoal`、`tfc:ore/bituminous_coal`、`tfc:ore/lignite`、`tfc:ore/graphite` |
+| crying obsidian、quartz | `tfc:powder/flux`、glass、glass pane、`tfc:kaolin_clay`、`tfc:powder/wood_ash`、`tfc:powder/saltpeter`、`tfc:powder/sylvite` |
+| Vanilla 食品 22 種、種子 4 種、chain | 同種・同調理状態の TFC 食品、`tfc:seeds/*`、`tfc:metal/chain/wrought_iron` |
+| Vanilla tool、armor、shears、shield、horse armor | `tfc:metal/<shape>/steel`。加工途中品のある family は途中品 2/3、完成品 1/3 |
 
-照合用の主要な定数は次のとおりとする。通常チェストは第一プールが 5～10 回、28 エントリ、第二プールが 1 回で、`empty:75`、`ward_armor_trim_smithing_template:4`、`silence_armor_trim_smithing_template:1` の重みを持つ。氷室は 4～10 回、5 エントリである。共有 `gems` は 9 種類、`produce` タグは 39 種類、`coal_like` は 4 種類である。詳細なエントリ・重み・関数は固定参照の JSON を正本とする。TFC 食料には TFC 本来の腐敗処理を適用する。
+置換先は新規スタックとし、元の damage を複製せず、加工途中品にはエンチャントを付与しない。TFC 食料には TFC 本来の腐敗処理を適用する。置換先が存在しない、元と同一、または新規スタックにない component を持つ元スタックは保持する。ただし damage と、modifier に元 entry のエンチャント関数を宣言した enchantments は除く。`ancient_city` modifier は `diamond_hoe` と `diamond_leggings` に uniform 30～50、`iron_leggings` に uniform 20～39 の `minecraft:enchant_with_levels`（`#minecraft:on_random_loot`）を宣言し、エンチャント済みの元アイテムから完成品になった場合だけ再抽選する。
 
-Vanilla 名前空間の戦利品テーブルを置き換える既存手段は維持するが、`minecraft:` の他の宝箱は変更しない。依存更新で JSON フォーマットの移行が必要なら、等価な抽選内容と確率を維持した上で検証する。
+Vanilla 1.21.1 の Ancient City で置換されるのは amethyst shard、coal、diamond hoe、diamond / iron leggings、diamond horse armor、Ice Box の baked potato である。残響の欠片、レコード、鍛冶型、エンチャント本、golden carrot、glow berries など他の報酬は変更しない。`minecraft:` の他の宝箱には modifier を適用しない。
 
 #### Acceptance Criteria
 
 ##### AC-F004-001: 戦利品データの完全性
 
 Preconditions:
-v0.1.1 固定参照の全 9 ファイルと v1.0 の同梱データがある。
+本 MOD のデータがロードされ、Vanilla と実験的 feature pack の loot table がある。
 
 Action:
-JSON を解析して再帰的に比較し、テーブル参照先とアイテム ID のロードを検証する。
+2 テーブルの JSON の提供元、global loot modifier の登録、modifier JSON の codec 解析、置換先アイテム ID を検証する。
 
 Expected Result:
-フォーマット移行を要しないデータは意味的に一致する。移行が必要な場合もエントリ、重み、数量、抽選回数、付加効果、参照先の意味が一致し、未知・欠落 ID によるロードエラーがない。
+2 テーブルは Minecraft 組み込み pack だけから提供され、MOD による上書きがない。2 件の modifier が登録・解析でき、`lategame` profile を使う。全置換先 ID が登録済みで、未知・欠落 ID によるロードエラーがない。
 
 ##### AC-F004-002: Ancient City の抽選結果
 
@@ -262,10 +266,10 @@ Preconditions:
 通常チェストと Ice Box の loot table が読み込まれ、複数の固定乱数シードを用意している。
 
 Action:
-各テーブルの結果を生成し、プール・エントリの分布、TFC の鋼装備・食料・宝石・石炭類、バニラ固有報酬を検査する。
+同じシードで GLM を経由しない抽選結果と GLM 適用後の結果を比較し、実際にチェストを開いて内容を検査する。
 
 Expected Result:
-上記プール構成と v0.1.1 の抽選仕様が維持される。残響の欠片、レコード、鍛冶型、エンチャント本などの固有報酬が削除されず、TFC 装備と食料の参照が解決される。
+対象外の報酬は変化せず、置換対象は規定の候補だけに置換され、個数の合計とスタック数の整合が保たれる。全置換候補が出現し、鋼装備の途中品は約 2/3、途中品にエンチャントはなく、完成品のエンチャントは宣言した元アイテムに限られる。TFC 食料は腐敗データを持つ。開封後のチェストに置換対象の Vanilla アイテムが残らない。
 
 ##### AC-F004-003: 置換された Chest での loot 維持
 
@@ -487,7 +491,7 @@ Expected Result:
 - 固定ブロック置換は表の 21 件に限定する。`campfire` と `soul_campfire` を Firepit へ変換しない。Furnace、Smoker、Blast Furnace は Firepit へ置換する。
 - 深層岩、深層岩建材、Sculk、Warden を独自の生成・崩落・戦闘規則で再実装しない。Hardened Deepslate、下面硬化、Loose Deepslate の自然生成を追加しない。
 - 独自の設定ファイル・設定画面・設定コマンド・ユーザー向け切替機能を作らない。実装に必要な JSON データと TFC タグは設定機能に含めない。
-- 戦利品は v0.1.1 の確率・量・種類を維持する。旧ワールド・旧インベントリからの移行、既存セーブデータの互換性は保証しない。ただし既存 ID を変更する必要はない。
+- 戦利品は Vanilla の抽選結果を維持し、F-004 の置換だけを加える。旧ワールド・旧インベントリからの移行、既存セーブデータの互換性は保証しない。ただし既存 ID を変更する必要はない。
 - TFC Overdims の Nether / End、気候、木材、MOB、Hardened、地質全般などの機能は移植しない。深層岩に必要な Loose、Cobble、採掘、孤立、Knapping、サイズ・重量、Cobble の地滑りに限定して参照する。
 - 他 MOD との完全な互換性は保証しないが、本 MOD が無関係な構造物やブロックの処理へ介入しないようにする。
 - 本書は modding-harness の `PROJECT.md` に対応する製品仕様の正本である。実装工程で仕様を独断変更せず、必要なら仕様変更を独立した作業として扱う。

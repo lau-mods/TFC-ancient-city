@@ -1,0 +1,39 @@
+{
+  "type": "tfcancientcity:tfc_loot_replacement",
+  "conditions": [
+    {
+      "condition": "neoforge:loot_table_id",
+      "loot_table_id": "minecraft:chests/ancient_city"
+    }
+  ],
+  "profile": "lategame",
+  "enchantments": {
+    "minecraft:diamond_hoe": {
+      "function": "minecraft:enchant_with_levels",
+      "levels": {
+        "type": "minecraft:uniform",
+        "min": 30.0,
+        "max": 50.0
+      },
+      "options": "#minecraft:on_random_loot"
+    },
+    "minecraft:diamond_leggings": {
+      "function": "minecraft:enchant_with_levels",
+      "levels": {
+        "type": "minecraft:uniform",
+        "min": 30.0,
+        "max": 50.0
+      },
+      "options": "#minecraft:on_random_loot"
+    },
+    "minecraft:iron_leggings": {
+      "function": "minecraft:enchant_with_levels",
+      "levels": {
+        "type": "minecraft:uniform",
+        "min": 20.0,
+        "max": 39.0
+      },
+      "options": "#minecraft:on_random_loot"
+    }
+  }
+}

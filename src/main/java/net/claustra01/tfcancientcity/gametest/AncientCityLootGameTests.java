@@ -1,40 +1,45 @@
 package net.claustra01.tfcancientcity.gametest;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.io.Reader;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import net.claustra01.tfcancientcity.TfcAncientCity;
+import net.claustra01.tfcancientcity.loot.TfcLootReplacementModifier;
 import net.dries007.tfc.common.component.food.FoodCapability;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootParams.Builder;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -47,196 +52,198 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 @GameTestHolder(TfcAncientCity.MOD_ID)
 @PrefixGameTestTemplate(false)
 public final class AncientCityLootGameTests {
-    private static final List<String> LOOT_DATA = List.of(
-        "data/minecraft/loot_table/chests/ancient_city.json",
-        "data/minecraft/loot_table/chests/ancient_city_ice_box.json",
-        "data/tfcancientcity/loot_table/shared/coal_like.json",
-        "data/tfcancientcity/loot_table/shared/gems.json",
-        "data/tfcancientcity/loot_table/shared/produce.json",
-        "data/tfcancientcity/loot_table/shared/equipment/lategame/greaves.json",
-        "data/tfcancientcity/loot_table/shared/equipment/lategame/hoe.json",
-        "data/tfcancientcity/loot_table/shared/equipment/lategame/horse_armor.json",
-        "data/tfcancientcity/tags/item/loot/produce.json"
-    );
     private static final ResourceKey<LootTable> ANCIENT_CITY = lootTable("minecraft", "chests/ancient_city");
     private static final ResourceKey<LootTable> ICE_BOX = lootTable("minecraft", "chests/ancient_city_ice_box");
+    private static final List<String> GEMS = List.of(
+        "amethyst", "diamond", "emerald", "lapis_lazuli", "opal", "pyrite", "ruby", "sapphire", "topaz"
+    );
+    private static final List<String> COAL_LIKE = List.of(
+        "minecraft:charcoal", "tfc:ore/bituminous_coal", "tfc:ore/lignite", "tfc:ore/graphite"
+    );
+    /** Built-in Minecraft packs; the GameTest server also enables the experimental feature packs. */
+    private static final Set<String> VANILLA_PACKS = Set.of("vanilla", "bundle", "trade_rebalance");
+    private static final Set<String> ENCHANTED_SOURCES = Set.of(
+        "minecraft:diamond_hoe", "minecraft:diamond_leggings", "minecraft:iron_leggings"
+    );
 
     @GameTest(template = "empty")
-    public static void lootDataMatchesFixedReferenceAndResolves(GameTestHelper helper) {
-        for (String path : LOOT_DATA) {
-            JsonElement actual = readJson("/" + path);
-            JsonElement reference = readJson("/tfcancientcity/gametest/reference/" + path);
-            require(actual.equals(reference), "Loot data differs recursively from v0.1.1: " + path);
-            validateReferences(actual, helper);
+    public static void vanillaLootUnchangedAndModifiersResolve(GameTestHelper helper) {
+        ResourceManager resources = helper.getLevel().getServer().getResourceManager();
+        for (ResourceKey<LootTable> key : List.of(ANCIENT_CITY, ICE_BOX)) {
+            ResourceLocation path = key.location().withPath(name -> "loot_table/" + name + ".json");
+            List<Resource> stack = resources.getResourceStack(path);
+            require(
+                stack.stream().anyMatch(resource -> resource.sourcePackId().equals("vanilla"))
+                    && stack.stream().allMatch(resource -> VANILLA_PACKS.contains(resource.sourcePackId())),
+                "Ancient City loot table JSON must stay Vanilla: " + key.location() + " from " + stack.stream().map(Resource::sourcePackId).toList()
+            );
+            require(helper.getLevel().getServer().reloadableRegistries().getLootTable(key) != LootTable.EMPTY, "Loot table failed to load: " + key.location());
         }
 
-        JsonObject ancientCity = readJson("/data/minecraft/loot_table/chests/ancient_city.json").getAsJsonObject();
-        JsonArray pools = ancientCity.getAsJsonArray("pools");
-        require(pools.size() == 2, "Ancient City pool count changed");
-        JsonObject primary = pools.get(0).getAsJsonObject();
-        require(primary.getAsJsonObject("rolls").get("min").getAsInt() == 5, "Ancient City minimum rolls changed");
-        require(primary.getAsJsonObject("rolls").get("max").getAsInt() == 10, "Ancient City maximum rolls changed");
-        require(primary.getAsJsonArray("entries").size() == 28, "Ancient City primary entry count changed");
-        require(pools.get(1).getAsJsonObject().get("rolls").getAsInt() == 1, "Ancient City rare pool rolls changed");
-        JsonArray rareEntries = pools.get(1).getAsJsonObject().getAsJsonArray("entries");
-        require(entryWeight(rareEntries, "minecraft:empty") == 75, "Ancient City empty weight changed");
-        require(entryWeight(rareEntries, "minecraft:ward_armor_trim_smithing_template") == 4, "Ward trim weight changed");
-        require(entryWeight(rareEntries, "minecraft:silence_armor_trim_smithing_template") == 1, "Silence trim weight changed");
-        JsonObject iceBox = readJson("/data/minecraft/loot_table/chests/ancient_city_ice_box.json").getAsJsonObject();
-        JsonObject icePool = iceBox.getAsJsonArray("pools").get(0).getAsJsonObject();
-        require(icePool.getAsJsonObject("rolls").get("min").getAsInt() == 4, "Ice Box minimum rolls changed");
-        require(icePool.getAsJsonObject("rolls").get("max").getAsInt() == 10, "Ice Box maximum rolls changed");
-        require(icePool.getAsJsonArray("entries").size() == 5, "Ice Box entry count changed");
-        require(sharedEntryCount("gems") == 9, "Gem entry count changed");
-        require(sharedEntryCount("coal_like") == 4, "Coal-like entry count changed");
-        require(
-            readJson("/data/tfcancientcity/tags/item/loot/produce.json").getAsJsonObject().getAsJsonArray("values").size() == 39,
-            "Produce tag entry count changed"
-        );
-
-        for (String id : List.of(
-            "tfcancientcity:shared/coal_like",
-            "tfcancientcity:shared/gems",
-            "tfcancientcity:shared/produce",
-            "tfcancientcity:shared/equipment/lategame/greaves",
-            "tfcancientcity:shared/equipment/lategame/hoe",
-            "tfcancientcity:shared/equipment/lategame/horse_armor",
-            "minecraft:chests/ancient_city",
-            "minecraft:chests/ancient_city_ice_box"
-        )) {
-            LootTable table = helper.getLevel()
-                .getServer()
-                .reloadableRegistries()
-                .getLootTable(ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.parse(id)));
-            require(table != LootTable.EMPTY, "Loot table failed to load: " + id);
+        JsonObject global = readResource(resources, ResourceLocation.fromNamespaceAndPath("neoforge", "loot_modifiers/global_loot_modifiers.json"));
+        Set<String> entries = new HashSet<>();
+        global.getAsJsonArray("entries").forEach(entry -> entries.add(entry.getAsString()));
+        RegistryOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, helper.getLevel().registryAccess());
+        for (String table : List.of("ancient_city", "ancient_city_ice_box")) {
+            require(entries.contains("tfcancientcity:chests/" + table), "Global loot modifier list misses " + table);
+            JsonObject modifier = readResource(resources, ResourceLocation.fromNamespaceAndPath(TfcAncientCity.MOD_ID, "loot_modifiers/chests/" + table + ".json"));
+            require(modifier.get("type").getAsString().equals("tfcancientcity:tfc_loot_replacement"), "Unexpected modifier type for " + table);
+            require(modifier.get("profile").getAsString().equals("lategame"), "Ancient City must use the lategame profile: " + table);
+            require(
+                TfcLootReplacementModifier.CODEC.codec().parse(ops, modifier).isSuccess(),
+                "Loot modifier does not decode: " + table
+            );
         }
 
-        TagKey<Item> produceTag = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("tfcancientcity", "loot/produce"));
-        int loadedProduceCount = BuiltInRegistries.ITEM.getTag(produceTag).orElseThrow().size();
-        require(loadedProduceCount == 39, "Loaded produce tag contains " + loadedProduceCount + " entries");
+        for (String id : allTargets()) {
+            require(BuiltInRegistries.ITEM.containsKey(ResourceLocation.parse(id)), "Unknown replacement item " + id);
+        }
         helper.succeed();
     }
 
-    @GameTest(template = "empty", timeoutTicks = 400)
-    public static void fixedSeedsPreserveAncientCityLoot(GameTestHelper helper) {
-        LootTable ancientCity = helper.getLevel().getServer().reloadableRegistries().getLootTable(ANCIENT_CITY);
-        LootTable iceBox = helper.getLevel().getServer().reloadableRegistries().getLootTable(ICE_BOX);
-        LootParams params = new Builder(helper.getLevel())
+    /** Compares the Vanilla roll ({@code getRandomItemsRaw} skips GLMs) with the GLM result of the same seed. */
+    @SuppressWarnings("deprecation")
+    @GameTest(template = "empty", timeoutTicks = 600)
+    public static void fixedSeedsReplaceOnlyRolledStacks(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        LootParams params = new Builder(level)
             .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(helper.absolutePos(BlockPos.ZERO)))
             .create(LootContextParamSets.CHEST);
-        Set<ResourceLocation> allowedNormal = referenceItems("data/minecraft/loot_table/chests/ancient_city.json");
-        Set<ResourceLocation> allowedIce = referenceItems("data/minecraft/loot_table/chests/ancient_city_ice_box.json");
-        allowedNormal.add(minecraft("enchanted_book"));
-        Set<ResourceLocation> normalItems = new HashSet<>();
-        Set<ResourceLocation> iceItems = new HashSet<>();
+        Set<String> expected = new HashSet<>();
+        Set<String> seen = new HashSet<>();
+        int unfinished = 0;
+        int finished = 0;
+        int enchantedFinished = 0;
         boolean validFood = false;
-        int ward = 0;
-        int silence = 0;
-        int packedIce = 0;
-        int snowball = 0;
 
-        for (long seed = 0L; seed < 4096L; seed++) {
-            for (ItemStack stack : ancientCity.getRandomItems(params, seed)) {
-                ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
-                require(allowedNormal.contains(id), "Unexpected Ancient City reward " + id);
-                normalItems.add(id);
-                if (id.equals(minecraft("ward_armor_trim_smithing_template"))) {
-                    ward++;
+        for (ResourceKey<LootTable> key : List.of(ANCIENT_CITY, ICE_BOX)) {
+            LootTable table = level.getServer().reloadableRegistries().getLootTable(key);
+            for (long seed = 1L; seed <= 4096L; seed++) {
+                List<ItemStack> raw = new ArrayList<>();
+                table.getRandomItemsRaw(
+                    new LootContext.Builder(params).withOptionalRandomSeed(seed).create(Optional.empty()),
+                    LootTable.createStackSplitter(level, raw::add)
+                );
+                List<ItemStack> modified = table.getRandomItems(params, seed);
+                int index = 0;
+
+                for (ItemStack source : raw) {
+                    String sourceId = id(source);
+                    Set<String> allowed = allowedOutputs(sourceId);
+                    ItemStack first = modified.get(index);
+                    if (allowed.isEmpty()) {
+                        require(ItemStack.matches(source, first), "Unmapped Vanilla reward changed: " + sourceId + " -> " + id(first));
+                        index++;
+                        continue;
+                    }
+
+                    String outputId = id(first);
+                    expected.addAll(allowed);
+                    seen.add(outputId);
+                    require(allowed.contains(outputId), sourceId + " must not become " + outputId);
+                    if (outputId.matches("tfc:metal/(.*_head|.*_blade|unfinished_.*)/.*")) {
+                        unfinished++;
+                        require(first.getTagEnchantments().isEmpty() && !first.has(DataComponents.STORED_ENCHANTMENTS), "Unfinished parts must not be enchanted: " + outputId);
+                    } else if (outputId.startsWith("tfc:metal/") && !outputId.contains("horse_armor")) {
+                        finished++;
+                        if (!first.getTagEnchantments().isEmpty()) {
+                            require(ENCHANTED_SOURCES.contains(sourceId) && !source.getTagEnchantments().isEmpty(), "Unexpected enchantment on " + outputId);
+                            enchantedFinished++;
+                        }
+                    }
+
+                    require(!first.has(DataComponents.DAMAGE) || first.getDamageValue() == 0, "Replacement copied source damage: " + outputId);
+                    if (FoodCapability.has(first)) {
+                        validFood |= !FoodCapability.isRotten(first);
+                    }
+
+                    int total = 0;
+                    while (total < source.getCount()) {
+                        require(modified.get(index).is(first.getItem()), "Split stacks keep one replacement item: " + sourceId);
+                        total += modified.get(index++).getCount();
+                    }
+
+                    require(total == source.getCount(), "Replacement keeps the rolled count: " + sourceId);
                 }
 
-                if (id.equals(minecraft("silence_armor_trim_smithing_template"))) {
-                    silence++;
-                }
+                require(index == modified.size(), "Replacement adds no stacks: " + key.location());
+            }
+        }
 
-                if (FoodCapability.has(stack)) {
-                    validFood |= !FoodCapability.isRotten(stack);
+        require(seen.containsAll(expected), "Fixed seeds must exercise every replacement: missing " + difference(expected, seen));
+        int equipment = unfinished + finished;
+        require(
+            equipment > 0 && unfinished * 100 / equipment >= 58 && unfinished * 100 / equipment <= 75,
+            "Unfinished to finished equipment ratio differs from 2/3: " + unfinished + "/" + equipment
+        );
+        require(enchantedFinished > 0, "Finished replacements of enchanted rewards were never re-enchanted");
+        require(validFood, "TFC food replacements did not receive fresh food data");
+
+        BlockPos pos = new BlockPos(1, 2, 1);
+        helper.setBlock(pos, Blocks.CHEST);
+        ChestBlockEntity chest = (ChestBlockEntity)helper.getBlockEntity(pos);
+        for (ResourceKey<LootTable> key : List.of(ANCIENT_CITY, ICE_BOX)) {
+            for (long seed : new long[] {17L, 42L, 256L, 8191L}) {
+                chest.clearContent();
+                chest.setLootTable(key, seed);
+                chest.unpackLootTable(null);
+                require(!chest.isEmpty(), "Opening generated chest fills inventory: " + key.location());
+                for (int slot = 0; slot < chest.getContainerSize(); slot++) {
+                    String id = id(chest.getItem(slot));
+                    require(allowedOutputs(id).isEmpty(), "Chest inventory contains a replaceable Vanilla reward: " + id);
                 }
             }
-
-            for (ItemStack stack : iceBox.getRandomItems(params, seed)) {
-                ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
-                require(allowedIce.contains(id), "Unexpected Ice Box reward " + id);
-                iceItems.add(id);
-                if (id.equals(minecraft("packed_ice"))) {
-                    packedIce++;
-                }
-
-                if (id.equals(minecraft("snowball"))) {
-                    snowball++;
-                }
-
-                if (FoodCapability.has(stack)) {
-                    validFood |= !FoodCapability.isRotten(stack);
-                }
-            }
         }
 
-        require(ward >= 140 && ward <= 270, "Ward trim frequency differs from the reference 4/80 weight: " + ward);
-        require(silence >= 25 && silence <= 85, "Silence trim frequency differs from the reference 1/80 weight: " + silence);
-        require(
-            packedIce > 0 && snowball > 0 && packedIce * 100 / snowball >= 45 && packedIce * 100 / snowball <= 55,
-            "Ice Box packed ice to snowball frequency differs from the reference 2:4 weight"
-        );
-        require(normalItems.contains(minecraft("echo_shard")), "Echo Shards disappeared from Ancient City loot");
-        require(normalItems.stream().anyMatch(id -> id.getPath().startsWith("music_disc_")), "Music discs disappeared from Ancient City loot");
-        require(normalItems.contains(minecraft("ward_armor_trim_smithing_template")), "Ward trim disappeared from Ancient City loot");
-        require(normalItems.contains(minecraft("silence_armor_trim_smithing_template")), "Silence trim disappeared from Ancient City loot");
-        require(normalItems.contains(minecraft("enchanted_book")), "Enchanted books disappeared from Ancient City loot");
-
-        for (String path : List.of(
-            "metal/unfinished_greaves/steel",
-            "metal/greaves/steel",
-            "metal/hoe_head/steel",
-            "metal/scythe_blade/steel",
-            "metal/hoe/steel",
-            "metal/scythe/steel",
-            "metal/horse_armor/steel"
-        )) {
-            require(normalItems.contains(tfc(path)), "Missing specific TFC steel reward " + path);
-        }
-
-        require(
-            normalItems.stream().anyMatch(id -> id.getNamespace().equals("tfc") && id.getPath().startsWith("gem/")),
-            "TFC gems disappeared from Ancient City loot"
-        );
-
-        for (ResourceLocation coal : List.of(minecraft("charcoal"), tfc("ore/bituminous_coal"), tfc("ore/lignite"), tfc("ore/graphite"))) {
-            require(normalItems.contains(coal), "Missing coal-like reward " + coal);
-        }
-
-        require(iceItems.contains(minecraft("packed_ice")) && iceItems.contains(minecraft("snowball")), "Ice Box Vanilla rewards changed");
-        require(
-            validFood && iceItems.stream().anyMatch(id -> id.getNamespace().equals("tfc") && id.getPath().startsWith("food/")),
-            "TFC food rewards did not preserve their food data"
-        );
         helper.succeed();
     }
 
-    private static Set<ResourceLocation> referenceItems(String path) {
-        Set<ResourceLocation> items = new HashSet<>();
-
-        for (JsonElement pool : readJson("/tfcancientcity/gametest/reference/" + path).getAsJsonObject().getAsJsonArray("pools")) {
-            for (JsonElement entry : pool.getAsJsonObject().getAsJsonArray("entries")) {
-                JsonObject object = entry.getAsJsonObject();
-                String type = object.get("type").getAsString();
-                if (type.equals("minecraft:item")) {
-                    items.add(ResourceLocation.parse(object.get("name").getAsString()));
-                } else if (type.equals("minecraft:loot_table")) {
-                    ResourceLocation id = ResourceLocation.parse(object.get("value").getAsString());
-                    items.addAll(referenceItems("data/" + id.getNamespace() + "/loot_table/" + id.getPath() + ".json"));
-                } else if (type.equals("minecraft:tag")) {
-                    ResourceLocation id = ResourceLocation.parse(object.get("name").getAsString());
-
-                    for (JsonElement value : readJson("/tfcancientcity/gametest/reference/data/" + id.getNamespace() + "/tags/item/" + id.getPath() + ".json")
-                        .getAsJsonObject()
-                        .getAsJsonArray("values")) {
-                        items.add(ResourceLocation.parse(value.getAsString()));
-                    }
-                }
+    private static Set<String> allowedOutputs(String source) {
+        Set<String> values = new HashSet<>();
+        switch (source) {
+            case "minecraft:amethyst_shard" -> GEMS.forEach(gem -> values.add("tfc:gem/" + gem));
+            case "minecraft:coal" -> values.addAll(COAL_LIKE);
+            case "minecraft:diamond_hoe" -> List.of("hoe_head", "scythe_blade", "hoe", "scythe").forEach(shape -> values.add(steel(shape)));
+            case "minecraft:diamond_leggings", "minecraft:iron_leggings" -> List.of("unfinished_greaves", "greaves").forEach(shape -> values.add(steel(shape)));
+            case "minecraft:diamond_horse_armor" -> values.add(steel("horse_armor"));
+            case "minecraft:baked_potato" -> values.add("tfc:food/baked_potato");
+            default -> {
             }
         }
+        return values;
+    }
 
-        return items;
+    private static Set<String> allTargets() {
+        Set<String> targets = new HashSet<>();
+        for (String source : List.of(
+            "minecraft:amethyst_shard", "minecraft:coal", "minecraft:diamond_hoe", "minecraft:diamond_leggings",
+            "minecraft:diamond_horse_armor", "minecraft:baked_potato"
+        )) {
+            targets.addAll(allowedOutputs(source));
+        }
+        return targets;
+    }
+
+    private static String steel(String shape) {
+        return "tfc:metal/" + shape + "/steel";
+    }
+
+    private static Set<String> difference(Set<String> expected, Set<String> seen) {
+        Set<String> missing = new HashSet<>(expected);
+        missing.removeAll(seen);
+        return missing;
+    }
+
+    private static String id(ItemStack stack) {
+        return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+    }
+
+    private static JsonObject readResource(ResourceManager resources, ResourceLocation path) {
+        try (Reader reader = resources.getResourceOrThrow(path).openAsReader()) {
+            return JsonParser.parseReader(reader).getAsJsonObject();
+        } catch (IOException exception) {
+            throw new GameTestAssertException("Could not read " + path + ": " + exception.getMessage());
+        }
     }
 
     @GameTest(template = "empty", timeoutTicks = 200)
@@ -301,66 +308,6 @@ public final class AncientCityLootGameTests {
     private static void requireBlock(GameTestHelper helper, BlockPos pos, ResourceLocation expected) {
         ResourceLocation actual = BuiltInRegistries.BLOCK.getKey(helper.getBlockState(pos).getBlock());
         require(actual.equals(expected), "Expected " + expected + " at " + pos + ", got " + actual);
-    }
-
-    private static void validateReferences(JsonElement element, GameTestHelper helper) {
-        if (element.isJsonArray()) {
-            for (JsonElement child : element.getAsJsonArray()) {
-                validateReferences(child, helper);
-            }
-        } else if (element.isJsonObject()) {
-            JsonObject object = element.getAsJsonObject();
-            if (object.has("type") && object.get("type").isJsonPrimitive()) {
-                String type = object.get("type").getAsString();
-                if (type.equals("minecraft:item") && object.has("name")) {
-                    ResourceLocation item = ResourceLocation.parse(object.get("name").getAsString());
-                    require(BuiltInRegistries.ITEM.containsKey(item), "Unknown loot item " + item);
-                } else if (type.equals("minecraft:loot_table") && object.has("value")) {
-                    ResourceKey<LootTable> key = ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.parse(object.get("value").getAsString()));
-                    require(helper.getLevel().getServer().reloadableRegistries().getLootTable(key) != LootTable.EMPTY, "Unknown nested loot table " + key.location());
-                } else if (type.equals("minecraft:tag") && object.has("name")) {
-                    TagKey<Item> tag = TagKey.create(Registries.ITEM, ResourceLocation.parse(object.get("name").getAsString()));
-                    require(BuiltInRegistries.ITEM.getTag(tag).isPresent(), "Unknown loot item tag " + tag.location());
-                }
-            }
-
-            for (Entry<String, JsonElement> entry : object.entrySet()) {
-                validateReferences(entry.getValue(), helper);
-            }
-        }
-    }
-
-    private static int entryWeight(JsonArray entries, String name) {
-        for (JsonElement element : entries) {
-            JsonObject entry = element.getAsJsonObject();
-            String entryName = entry.has("name") ? entry.get("name").getAsString() : entry.get("type").getAsString();
-            if (entryName.equals(name)) {
-                return entry.has("weight") ? entry.get("weight").getAsInt() : 1;
-            }
-        }
-
-        throw new GameTestAssertException("Missing loot entry " + name);
-    }
-
-    private static int sharedEntryCount(String name) {
-        return readJson("/data/tfcancientcity/loot_table/shared/" + name + ".json")
-            .getAsJsonObject()
-            .getAsJsonArray("pools")
-            .get(0)
-            .getAsJsonObject()
-            .getAsJsonArray("entries")
-            .size();
-    }
-
-    private static JsonElement readJson(String path) {
-        try (InputStream stream = AncientCityLootGameTests.class.getResourceAsStream(path)) {
-            if (stream == null) {
-                throw new GameTestAssertException("Missing resource " + path);
-            }
-            return JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
-        } catch (IOException exception) {
-            throw new GameTestAssertException("Could not read " + path + ": " + exception.getMessage());
-        }
     }
 
     private static ResourceKey<LootTable> lootTable(String namespace, String path) {

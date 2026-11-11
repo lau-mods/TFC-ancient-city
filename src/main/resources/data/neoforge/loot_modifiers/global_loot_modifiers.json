@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "entries": [
+    "tfcancientcity:chests/ancient_city",
+    "tfcancientcity:chests/ancient_city_ice_box"
+  ]
+}

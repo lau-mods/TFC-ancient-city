@@ -64,13 +64,13 @@
       "acId": "AC-F004-001",
       "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
       "classname": "tfcancientcity:empty",
-      "name": "lootdatamatchesfixedreferenceandresolves"
+      "name": "vanillalootunchangedandmodifiersresolve"
     },
     {
       "acId": "AC-F004-002",
       "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
       "classname": "tfcancientcity:empty",
-      "name": "fixedseedspreserveancientcityloot"
+      "name": "fixedseedsreplaceonlyrolledstacks"
     },
     {
       "acId": "AC-F004-003",
