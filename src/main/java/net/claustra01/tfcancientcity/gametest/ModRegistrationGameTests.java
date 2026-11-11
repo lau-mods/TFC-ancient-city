@@ -77,11 +77,10 @@ public final class ModRegistrationGameTests {
         natural.buildContents(parameters);
         ingredients.buildContents(parameters);
         require(contains(natural, ModItems.LOOSE_DEEPSLATE.get()), "Loose Deepslate is missing from the TFC natural blocks tab");
-        require(contains(natural, ModItems.COBBLE_DEEPSLATE.get()), "Cobble Deepslate is missing from the TFC natural blocks tab");
         require(contains(ingredients, ModItems.DEEPSLATE_BRICK.get()), "Deepslate Brick is missing from the TFC metals and ingredients tab");
-        require(!contains(natural, ModItems.DEEPSLATE_BRICK.get()) && !contains(ingredients, ModItems.LOOSE_DEEPSLATE.get())
-            && !contains(ingredients, ModItems.COBBLE_DEEPSLATE.get()), "Items were added to an unexpected TFC tab");
-        for (Item item : List.of(ModItems.LOOSE_DEEPSLATE.get(), ModItems.COBBLE_DEEPSLATE.get(), ModItems.DEEPSLATE_BRICK.get())) {
+        require(!contains(natural, ModItems.DEEPSLATE_BRICK.get()) && !contains(ingredients, ModItems.LOOSE_DEEPSLATE.get()),
+            "Items were added to an unexpected TFC tab");
+        for (Item item : List.of(ModItems.LOOSE_DEEPSLATE.get(), ModItems.DEEPSLATE_BRICK.get())) {
             require(natural.getSearchTabDisplayItems().stream().anyMatch(stack -> stack.is(item))
                 || ingredients.getSearchTabDisplayItems().stream().anyMatch(stack -> stack.is(item)), "Item is not searchable: " + item);
         }

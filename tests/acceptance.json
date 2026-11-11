@@ -118,7 +118,7 @@
       "acId": "AC-F007-001",
       "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
       "classname": "tfcancientcity:empty",
-      "name": "cobbleregistrationdropsandancientcityindependence"
+      "name": "vanillacobbleisthedeepslatecobble"
     },
     {
       "acId": "AC-F007-002",
@@ -127,10 +127,22 @@
       "name": "cobbleandlooserecipes"
     },
     {
+      "acId": "AC-F007-002",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "vanillabypassrecipesdisabledandshapesfollowtfc"
+    },
+    {
       "acId": "AC-F007-003",
       "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
       "classname": "tfcancientcity:empty",
       "name": "brickrecipesdamagetools"
+    },
+    {
+      "acId": "AC-F007-003",
+      "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
+      "classname": "tfcancientcity:empty",
+      "name": "chiselshapesdeepslateinworld"
     },
     {
       "acId": "AC-F007-004",
@@ -148,7 +160,7 @@
       "acId": "AC-F008-002",
       "report": "build/test-results/gametest/TEST-tfcancientcity.GameTests.xml",
       "classname": "tfcancientcity:empty",
-      "name": "onlynewcobblelandslides"
+      "name": "nodeepslatelandslides"
     }
   ],
   "e2e": [
@@ -165,12 +177,8 @@
       "scenario": "tests/e2e/ancient-city-chest.mjs"
     },
     {
-      "acId": "AC-F007-001",
-      "scenario": "tests/e2e/cobble-deepslate.mjs"
-    },
-    {
       "acId": "AC-F007-004",
-      "scenario": "tests/e2e/cobble-deepslate.mjs"
+      "scenario": "tests/e2e/deepslate-knapping.mjs"
     }
   ]
 }

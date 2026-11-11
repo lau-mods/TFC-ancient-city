@@ -13,7 +13,6 @@ public final class ModItems {
         "rock/loose/deepslate",
         () -> new BlockItem(ModBlocks.LOOSE_DEEPSLATE.get(), new Item.Properties())
     );
-    public static final DeferredItem<BlockItem> COBBLE_DEEPSLATE = ITEMS.registerSimpleBlockItem(ModBlocks.COBBLE_DEEPSLATE);
     public static final DeferredItem<Item> DEEPSLATE_BRICK = ITEMS.registerSimpleItem("brick/deepslate");
 
     private ModItems() {

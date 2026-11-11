@@ -8,7 +8,6 @@ public final class ModCreativeTabs {
     public static void addToTabs(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey().equals(TFCCreativeTabs.TFC_NATURAL_BLOCKS.tab().getKey())) {
             event.accept(ModItems.LOOSE_DEEPSLATE);
-            event.accept(ModItems.COBBLE_DEEPSLATE);
         } else if (event.getTabKey().equals(TFCCreativeTabs.TFC_METALS_INGREDIENTS.tab().getKey())) {
             event.accept(ModItems.DEEPSLATE_BRICK);
         }

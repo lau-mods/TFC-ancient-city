@@ -1,0 +1,8 @@
+{
+  "type": "tfc:chisel",
+  "ingredient": [
+    "minecraft:deepslate_bricks"
+  ],
+  "mode": "tfc:smooth",
+  "result": "minecraft:chiseled_deepslate"
+}

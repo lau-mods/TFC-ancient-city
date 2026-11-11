@@ -181,7 +181,7 @@ public final class DeepslateMiningGameTests {
             require(drops.isEmpty(), action + " should not drop an item");
         } else {
             require(drops.size() == 1 && drops.getFirst().is(expected) && drops.getFirst().getCount() == 1,
-                action + " did not return exactly one " + expected);
+                action + " did not return exactly one " + expected + ": " + drops);
         }
     }
 

@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import net.claustra01.tfcancientcity.TfcAncientCity;
 import net.claustra01.tfcancientcity.accessor.StructureTemplateIdAccessor;
-import net.claustra01.tfcancientcity.registry.ModBlocks;
 import net.dries007.tfc.common.TFCTags;
 import net.dries007.tfc.common.entities.misc.TFCFallingBlockEntity;
 import net.dries007.tfc.common.recipes.CollapseRecipe;
@@ -107,45 +106,14 @@ public final class DeepslateStabilityGameTests {
     }
 
     @GameTest(template = "empty")
-    public static void onlyNewCobbleLandslides(GameTestHelper helper) {
-        JsonObject json = modJson("data", "tfc", "tags", "block", "can_landslide.json");
-        require(!json.get("replace").getAsBoolean(), "can_landslide must preserve TFC's existing values");
-        Set<String> values = json.getAsJsonArray("values").asList().stream().map(value -> value.getAsString()).collect(Collectors.toSet());
-        require(values.equals(Set.of("tfcancientcity:rock/cobble/deepslate")), "Unexpected mod landslide additions: " + values);
-
-        Block cobble = ModBlocks.COBBLE_DEEPSLATE.get();
-        require(cobble.defaultBlockState().is(TFCTags.Blocks.CAN_LANDSLIDE), "New Cobble Deepslate is absent from can_landslide");
-        require(LandslideRecipe.canLandslide(cobble.defaultBlockState()), "New Cobble Deepslate did not resolve TFC's fallback landslide recipe");
-        for (Block block : PROTECTED_DEEPSLATE.subList(1, PROTECTED_DEEPSLATE.size())) {
+    public static void noDeepslateLandslides(GameTestHelper helper) {
+        require(!modResourceExists("data", "tfc", "tags", "block", "can_landslide.json"), "The mod supplies tfc:can_landslide data");
+        require(modRecipeTypes().stream().noneMatch("tfc:landslide"::equals), "The mod supplies a TFC landslide recipe");
+        for (Block block : PROTECTED_DEEPSLATE) {
             require(!block.defaultBlockState().is(TFCTags.Blocks.CAN_LANDSLIDE), block + " was added to can_landslide");
             require(!LandslideRecipe.canLandslide(block.defaultBlockState()), block + " resolved a landslide recipe");
         }
 
-        BlockPos source = new BlockPos(8, 5, 8);
-        helper.setBlock(source.below(), Blocks.STONE);
-        for (Direction direction : Direction.Plane.HORIZONTAL) {
-            BlockPos side = source.relative(direction);
-            helper.setBlock(side, Blocks.AIR);
-            helper.setBlock(side.below(), Blocks.STONE);
-        }
-        helper.setBlock(source, cobble);
-        require(helper.getBlockState(source).is(cobble), "Cobble Deepslate did not remain while supported");
-        require(LandslideRecipe.getLandslidePos(helper.getLevel(), helper.absolutePos(source), cobble.defaultBlockState()) == null,
-            "Supported Cobble Deepslate found a landslide destination");
-        require(!LandslideRecipe.tryLandslide(helper.getLevel(), helper.absolutePos(source), cobble.defaultBlockState()),
-            "Supported Cobble Deepslate landslid");
-        require(helper.getBlockState(source).is(cobble), "Supported Cobble Deepslate moved");
-        helper.getLevel().setBlock(helper.absolutePos(source.below()), Blocks.AIR.defaultBlockState(), 2);
-        require(LandslideRecipe.getLandslidePos(helper.getLevel(), helper.absolutePos(source), cobble.defaultBlockState())
-            .equals(helper.absolutePos(source)), "Cobble Deepslate did not become able to fall after support removal");
-        require(LandslideRecipe.tryLandslide(helper.getLevel(), helper.absolutePos(source), cobble.defaultBlockState()),
-            "TFC rejected the Cobble Deepslate landslide");
-        AABB area = new AABB(helper.absolutePos(source)).inflate(2.0);
-        List<TFCFallingBlockEntity> falling = helper.getLevel().getEntitiesOfClass(TFCFallingBlockEntity.class, area);
-        require(falling.size() == 1, "TFC did not spawn exactly one falling block entity for the landslide");
-        require(((net.minecraft.world.entity.item.FallingBlockEntity)falling.getFirst()).getBlockState().is(cobble),
-            "The landslide entity did not carry Cobble Deepslate");
-        falling.forEach(Entity::discard);
         for (int index = 1; index < PROTECTED_DEEPSLATE.size(); index++) {
             Block block = PROTECTED_DEEPSLATE.get(index);
             BlockPos pos = new BlockPos(2 + (index - 1) * 3, 5, 13);
